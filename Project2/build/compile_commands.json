@@ -1,0 +1,26 @@
+[
+{
+  "directory": "/Users/dhruvmadan/RBE 550/Project2/build",
+  "command": "/usr/bin/clang++  -I/usr/local/include/ompl-1.8 -I/opt/homebrew/include -I/opt/homebrew/include/eigen3 -g -std=gnu++17 -arch arm64 -o CMakeFiles/MY_LIBRARY.dir/CollisionChecking.cpp.o -c \"/Users/dhruvmadan/RBE 550/Project2/code/CollisionChecking.cpp\"",
+  "file": "/Users/dhruvmadan/RBE 550/Project2/code/CollisionChecking.cpp",
+  "output": "CMakeFiles/MY_LIBRARY.dir/CollisionChecking.cpp.o"
+},
+{
+  "directory": "/Users/dhruvmadan/RBE 550/Project2/build",
+  "command": "/usr/bin/clang++  -I/usr/local/include/ompl-1.8 -I/opt/homebrew/include -I/opt/homebrew/include/eigen3 -g -std=gnu++17 -arch arm64 -o CMakeFiles/MY_LIBRARY.dir/RTP.cpp.o -c \"/Users/dhruvmadan/RBE 550/Project2/code/RTP.cpp\"",
+  "file": "/Users/dhruvmadan/RBE 550/Project2/code/RTP.cpp",
+  "output": "CMakeFiles/MY_LIBRARY.dir/RTP.cpp.o"
+},
+{
+  "directory": "/Users/dhruvmadan/RBE 550/Project2/build",
+  "command": "/usr/bin/clang++ -DBOOST_SERIALIZATION_DYN_LINK -DBOOST_SERIALIZATION_NO_LIB -isystem /usr/local/include/ompl-1.8 -isystem /opt/homebrew/include -isystem /opt/homebrew/include/eigen3 -g -std=gnu++17 -arch arm64 -o CMakeFiles/planRTP.dir/PlanningRTP.cpp.o -c \"/Users/dhruvmadan/RBE 550/Project2/code/PlanningRTP.cpp\"",
+  "file": "/Users/dhruvmadan/RBE 550/Project2/code/PlanningRTP.cpp",
+  "output": "CMakeFiles/planRTP.dir/PlanningRTP.cpp.o"
+},
+{
+  "directory": "/Users/dhruvmadan/RBE 550/Project2/build",
+  "command": "/usr/bin/clang++ -DBOOST_SERIALIZATION_DYN_LINK -DBOOST_SERIALIZATION_NO_LIB -isystem /usr/local/include/ompl-1.8 -isystem /opt/homebrew/include -isystem /opt/homebrew/include/eigen3 -g -std=gnu++17 -arch arm64 -o CMakeFiles/kinematicChainBenchmark.dir/KinematicChainBenchmark.cpp.o -c \"/Users/dhruvmadan/RBE 550/Project2/code/KinematicChainBenchmark.cpp\"",
+  "file": "/Users/dhruvmadan/RBE 550/Project2/code/KinematicChainBenchmark.cpp",
+  "output": "CMakeFiles/kinematicChainBenchmark.dir/KinematicChainBenchmark.cpp.o"
+}
+]

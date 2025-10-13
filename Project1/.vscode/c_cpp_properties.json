@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/local/include/ompl-1.8/",
+                "/Users/dhruvmadan/ompl/src/ompl",
+                "/opt/homebrew/include/boost/",
+                "/opt/homebrew/Cellar/boost/1.89.0/include",
+                "/opt/homebrew/include/eigen3"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c17",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "macos-clang-arm64"
+        }
+    ],
+    "version": 4
+}
