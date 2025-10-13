@@ -1,1 +1,0 @@
-/usr/bin/clang++ -g -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/kinematicChainBenchmark.dir/KinematicChainBenchmark.cpp.o -o kinematicChainBenchmark  -Wl,-rpath,/usr/local/lib libMY_LIBRARY.a libMY_LIBRARY.a /usr/local/lib/libompl.1.8.0.dylib /opt/homebrew/lib/libboost_serialization.dylib
