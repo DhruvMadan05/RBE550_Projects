@@ -1,9 +1,0 @@
-///////////////////////////////////////
-// RBE550
-// Project 4
-// Authors: FILL ME OUT!!
-//////////////////////////////////////
-
-#include "AO-RRT.h"
-
-// TODO: Implement AO-RRT as described
