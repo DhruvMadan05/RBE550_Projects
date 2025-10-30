@@ -25,6 +25,8 @@
 #include <ompl/control/planners/est/EST.h>
 #include <ompl/control/planners/kpiece/KPIECE1.h>
 
+#include "CollisionChecking.h"
+
 static const double g = 9.81;  // acceleratio ndue to gravity 9.81 m/s^2
 
 
@@ -86,6 +88,7 @@ void pendulumODE(const ompl::control::ODESolver::StateType &q, const ompl::contr
     double omega = q[1];
 
     // control is 1D: torque
+    // get the torque value from the control
     const double *u = control->as<ompl::control::RealVectorControlSpace::ControlType>()->values;
     double tau = u[0];
 
@@ -94,11 +97,47 @@ void pendulumODE(const ompl::control::ODESolver::StateType &q, const ompl::contr
     qdot[1] = -g * std::cos(theta) + tau;
 }
 
-ompl::control::SimpleSetupPtr createPendulum(double /* torque */)
+
+/**
+ * Create and setup the pendulum's state space, control space, validity checker, everything you need for planning.
+ * @param torque The maximum torque that can be applied to the pendulum.
+ * @return A pointer to the SimpleSetup object for the pendulum.
+ */
+ompl::control::SimpleSetupPtr createPendulum(double torque)
 {
-    // TODO: Create and setup the pendulum's state space, control space, validity checker, everything you need for
-    // planning.
-    return nullptr;
+    // Create the state space for the pendulum
+    auto stateSpace = std::make_shared<ompl::base::RealVectorStateSpace>(2);
+
+    // Set the bounds for theta and omega
+    ompl::base::RealVectorBounds stateBounds(2);
+    stateBounds.setLow(0, -M_PI);   // theta lower bound
+    stateBounds.setHigh(0, M_PI);   // theta upper bound
+    stateBounds.setLow(1, -10.0);   // omega lower bound
+    stateBounds.setHigh(1, 10.0);   // omega upper bound
+    stateSpace->setBounds(stateBounds); 
+
+    // Create the control space for the pendulum
+    auto controlSpace = std::make_shared<ompl::control::RealVectorControlSpace
+        >(stateSpace, 1);  // 1D control space for torque
+    // Set the bounds for the control (torque)
+    ompl::base::RealVectorBounds controlBounds(1);
+    controlBounds.setLow(0, -torque);  // torque lower bound
+    controlBounds.setHigh(0, torque); // torque upper bound
+    controlSpace->setBounds(controlBounds); 
+
+    // Create the SimpleSetup object
+    ompl::control::SimpleSetupPtr ss = std::make_shared<ompl::control::SimpleSetup>(controlSpace); 
+
+    // Set the state validity checker using the collisionChecking function
+    ss->setStateValidityChecker([&](const ompl::base::State *state) {
+        const auto *s = state->as<ompl::base::RealVectorStateSpace::StateType>();
+        double theta = s->values[0];
+        double omega = s->values[1];
+        // For the pendulum, we can consider all states valid (no obstacles)
+        return true;
+    });
+
+    return ss;
 }
 
 void planPendulum(ompl::control::SimpleSetupPtr &/* ss */, int /* choice */)
