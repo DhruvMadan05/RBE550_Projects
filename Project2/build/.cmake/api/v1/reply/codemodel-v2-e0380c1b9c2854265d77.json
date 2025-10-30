@@ -1,0 +1,78 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "Project2",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "MY_LIBRARY::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-MY_LIBRARY-Debug-38745d3dfa1c667b9e69.json",
+					"name" : "MY_LIBRARY",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "kinematicChainBenchmark::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-kinematicChainBenchmark-Debug-b238f2b26fdbeb2bbcfa.json",
+					"name" : "kinematicChainBenchmark",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "planRTP::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-planRTP-Debug-8189eedb84512be416d9.json",
+					"name" : "planRTP",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/Users/dhruvmadan/RBE 550/Project2/build",
+		"source" : "/Users/dhruvmadan/RBE 550/Project2/code"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 8
+	}
+}
