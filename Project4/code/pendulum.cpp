@@ -4,15 +4,39 @@
 // Authors: Dhruv Madan
 //////////////////////////////////////
 
+// include library headers
 #include <iostream>
+#include <cmath>
 
+// Base headers
+#include <ompl/base/SpaceInformation.h>
+#include <ompl/base/ScopedState.h>
 #include <ompl/base/ProjectionEvaluator.h>
+#include <ompl/base/objectives/PathLengthOptimizationObjective.h>
+#include <ompl/base/spaces/RealVectorStateSpace.h>
 
+// Control headers
 #include <ompl/control/SimpleSetup.h>
 #include <ompl/control/ODESolver.h>
+#include <ompl/control/spaces/RealVectorControlSpace.h>
+
+// 3 planners to choose from
+#include <ompl/control/planners/rrt/RRT.h>
+#include <ompl/control/planners/est/EST.h>
+#include <ompl/control/planners/kpiece/KPIECE1.h>
+
+static const double g = 9.81;  // acceleratio ndue to gravity 9.81 m/s^2
 
 
 // Your projection for the pendulum
+/**
+ * Projection for the pendulum state space.
+ * The pendulum state is represented as (theta, omega), where
+ * - theta is the angular position
+ * - omega is the angular velocity
+ * 
+ * The projection maps the state to a 2D space defined by (theta, omega).
+ */
 class PendulumProjection : public ompl::base::ProjectionEvaluator
 {
 public:
@@ -20,22 +44,54 @@ public:
     {
     }
 
+    /**
+     * Get the dimension of the projection space.
+     * @return The dimension of the projection space (2 for pendulum).
+     */
     unsigned int getDimension() const override
     {
-        // TODO: The dimension of your projection for the pendulum
-        return 0;
+        // The dimension of the pendulum projection is 2
+        // - angular position, theta
+        // - angular velocity, omega
+        return 2;
     }
 
-    void project(const ompl::base::State */* state */, Eigen::Ref<Eigen::VectorXd> /* projection */) const override
+    /**
+     * Project the given state to the projection space.
+     * @param state The state to be projected.
+     * @param projection The resulting projection vector.
+     */
+    void project(const ompl::base::State *state, Eigen::Ref<Eigen::VectorXd> projection) const override
     {
-        // TODO: Your projection for the pendulum
+        const auto *s = state->as<ompl::base::RealVectorStateSpace::StateType>();
+        projection(0) = s->values[0];  // theta
+        projection(1) = s->values[1];  // omega
     }
 };
 
-void pendulumODE(const ompl::control::ODESolver::StateType &/* q */, const ompl::control::Control */* control */,
-                 ompl::control::ODESolver::StateType &/* qdot */)
+
+/**
+ * ODE function for the pendulum dynamics.
+ * 
+ * @param q The current state vector (theta, omega).
+ * @param control The control input (torque).
+ * @param qdot The resulting state derivative vector (dtheta/dt, domega/dt).
+ */
+void pendulumODE(const ompl::control::ODESolver::StateType &q, const ompl::control::Control *control,
+                 ompl::control::ODESolver::StateType &qdot)
 {
-    // TODO: Fill in the ODE for the pendulum's dynamics
+    // q has size 2
+    // unpack q into theta and omega
+    double theta = q[0];
+    double omega = q[1];
+
+    // control is 1D: torque
+    const double *u = control->as<ompl::control::RealVectorControlSpace::ControlType>()->values;
+    double tau = u[0];
+
+    qdot.resize(2);
+    qdot[0] = omega;
+    qdot[1] = -g * std::cos(theta) + tau;
 }
 
 ompl::control::SimpleSetupPtr createPendulum(double /* torque */)
