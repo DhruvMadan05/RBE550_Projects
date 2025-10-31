@@ -97,9 +97,22 @@ void pendulumODE(const ompl::control::ODESolver::StateType &q, const ompl::contr
     qdot[1] = -g * std::cos(theta) + tau;
 }
 
+void pendulumPostIntegration(const ompl::base::State * /* state */, const ompl::control::Control * /* control */,
+                               double /* duration */, ompl::base::State *result)
+{
+    // Ensure theta remains within [-pi, pi] after integration
+    auto *s = result->as<ompl::base::RealVectorStateSpace::StateType>();
+    double &theta = s->values[0];
+    // Wrap theta to be within [-pi, pi]
+    while (theta > M_PI)
+        theta -= 2 * M_PI;
+    while (theta < -M_PI)
+        theta += 2 * M_PI;
+}
+
 
 /**
- * Create and setup the pendulum's state space, control space, validity checker, everything you need for planning.
+ * Create and setup the pendulum's state space, control space, validity checker.
  * @param torque The maximum torque that can be applied to the pendulum.
  * @return A pointer to the SimpleSetup object for the pendulum.
  */
@@ -140,18 +153,18 @@ ompl::control::SimpleSetupPtr createPendulum(double torque)
     return ss;
 }
 
-void planPendulum(ompl::control::SimpleSetupPtr &/* ss */, int /* choice */)
+void planPendulum(ompl::control::SimpleSetupPtr &ss, int choice)
 {
     // TODO: Do some motion planning for the pendulum
     // choice is what planner to use.
 }
 
-void benchmarkPendulum(ompl::control::SimpleSetupPtr &/* ss */)
+void benchmarkPendulum(ompl::control::SimpleSetupPtr &ss)
 {
     // TODO: Do some benchmarking for the pendulum
 }
 
-int main(int /* argc */, char ** /* argv */)
+int main(int argc, char **argv)
 {
     int choice;
     do
