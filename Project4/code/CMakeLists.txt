@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(Project4)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 find_package(ompl REQUIRED)
 
 include_directories(${OMPL_INCLUDE_DIRS})

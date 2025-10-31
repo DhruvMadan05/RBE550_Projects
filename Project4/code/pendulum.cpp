@@ -7,6 +7,7 @@
 // include library headers
 #include <iostream>
 #include <cmath>
+#include <fstream>
 
 // Base headers
 #include <ompl/base/SpaceInformation.h>
@@ -14,6 +15,7 @@
 #include <ompl/base/ProjectionEvaluator.h>
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
 #include <ompl/base/spaces/RealVectorStateSpace.h>
+#include <ompl/base/spaces/SO2StateSpace.h>
 
 // Control headers
 #include <ompl/control/SimpleSetup.h>
@@ -119,6 +121,11 @@ void pendulumPostIntegration(const ompl::base::State *state, const ompl::control
         theta += 2 * M_PI;
 }
 
+
+/**
+ * State validity checker for the pendulum.
+ * Considers all states valid as long as omega is within bounds.
+ */
 class PendulumValidityChecker : public ompl::base::StateValidityChecker
 {
 public:
@@ -126,6 +133,11 @@ public:
     {
     }
 
+    /**
+     * Check if the given state is valid.
+     * @param state The state to be checked.
+     * @return True if the state is valid, false otherwise.
+     */
     bool isValid(const ompl::base::State *state) const override
     {
         // For the pendulum, we can consider all states valid as long as omega is within bounds
@@ -145,6 +157,20 @@ ompl::control::SimpleSetupPtr createPendulum(double torque)
 {
     // Create the state space for the pendulum
     auto stateSpace = std::make_shared<ompl::base::RealVectorStateSpace>(2);
+
+    // First component: SO(2) for theta (continuous circle)
+    // Second component: R(1) for omega
+    // auto thetaSpace = std::make_shared<ompl::base::SO2StateSpace>();
+    // auto omegaSpace = std::make_shared<ompl::base::RealVectorStateSpace>(1);
+
+    // auto stateSpace = thetaSpace + omegaSpace;
+
+    // set omega bounds
+    ompl::base::RealVectorBounds omegaBounds(1);
+    omegaBounds.setLow(-10);
+    omegaBounds.setHigh(10);
+    //stateSpace->as<ompl::base::CompoundStateSpace>()->getSubspace(1)->as<ompl::base::RealVectorStateSpace>()->setBounds(omegaBounds);
+    //omegaSpace->setBounds(omegaBounds);
 
     // Set the bounds for theta and omega
     ompl::base::RealVectorBounds stateBounds(2);
@@ -193,6 +219,11 @@ ompl::control::SimpleSetupPtr createPendulum(double torque)
     return ss;
 }
 
+/**
+ * Plan for the pendulum using the specified planner.
+ * @param ss The SimpleSetup object for the pendulum.
+ * @param choice The planner choice (1: RRT, 2: EST, 3: KPIECE1).
+ */
 void planPendulum(ompl::control::SimpleSetupPtr &ss, int choice)
 {
     ompl::base::PlannerPtr planner;
@@ -203,7 +234,7 @@ void planPendulum(ompl::control::SimpleSetupPtr &ss, int choice)
         planner = std::make_shared<ompl::control::EST>(ss->getSpaceInformation());
     else
         planner = std::make_shared<ompl::control::KPIECE1>(ss->getSpaceInformation());
-        
+
     ss->setPlanner(planner);
     ompl::base::PlannerStatus solved = ss->solve(5.0);
 
@@ -211,13 +242,24 @@ void planPendulum(ompl::control::SimpleSetupPtr &ss, int choice)
     {
         std::cout << "Planner found a solution!\n";
         auto path = ss->getSolutionPath().asGeometric();
+        //path.interpolate(400);  // interpolate the path for smoother output
         path.printAsMatrix(std::cout);
+        // Add the path to a file
+        std::ofstream outFile("pendulum_path.txt");
+        path.printAsMatrix(outFile);
+        outFile.close();
+        std::cout << "Path saved to pendulum_path.txt\n"; 
+
     }
     else
         std::cout << "No solution found.\n";
 
 }
 
+/**
+ * Benchmarking for the pendulum.
+ * @param ss The SimpleSetup object for the pendulum.
+ */
 void benchmarkPendulum(ompl::control::SimpleSetupPtr &ss)
 {
     // TODO: Do some benchmarking for the pendulum
