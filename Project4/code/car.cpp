@@ -16,6 +16,9 @@
 #include <ompl/base/spaces/SO2StateSpace.h>
 #include <ompl/base/StateValidityChecker.h>
 
+#include <ompl/tools/benchmark/Benchmark.h>
+#include <ompl/base/objectives/PathLengthOptimizationObjective.h>
+
 #include <ompl/control/SimpleSetup.h>
 #include <ompl/control/ODESolver.h>
 #include <ompl/control/spaces/RealVectorControlSpace.h>
@@ -228,9 +231,43 @@ void planCar(ompl::control::SimpleSetupPtr &ss, int choice)
     }
 }
 
-void benchmarkCar(ompl::control::SimpleSetupPtr &/* ss */)
+void benchmarkCar(ompl::control::SimpleSetupPtr &ss)
 {
-    // TODO: Do some benchmarking for the car
+    // implement benchmarking logic for 3 planners
+    // KPIECE1, SST, AO-RRT
+    // Each planner must run 20 trials for 200 seconds each
+    // use the benchmark class of OMPL
+
+    // --- Configuration ---
+    unsigned int runCount = 20; // repeat each planner 20 times
+    double timeout = 200.0; // seconds per planner
+    double memoryLimit = 1024.0; // MB
+    std::string outputFile = "car_benchmark.log";
+
+    // --- Benchmark setup ---
+    ompl::tools::Benchmark benchmark(*ss, "CarBenchmark");
+
+    // Add planners
+    benchmark.addPlanner(std::make_shared<ompl::control::KPIECE1>(ss->getSpaceInformation()));
+    benchmark.addPlanner(std::make_shared<ompl::control::SST>(ss->getSpaceInformation()));
+    benchmark.addPlanner(std::make_shared<ompl::control::AORRT>(ss->getSpaceInformation()));
+
+    // --- Experiment settings ---
+    ompl::tools::Benchmark::Request request;
+    request.maxTime = timeout;       // per run
+    request.maxMem = memoryLimit;    // memory limit
+    request.runCount = runCount;     // number of repetitions
+    request.displayProgress = true;  // show progress in console
+
+    std::cout << "\nRunning benchmark: " << runCount << " runs per planner, "
+              << timeout << " seconds each...\n";
+
+    // --- Run benchmark ---
+    benchmark.benchmark(request);
+
+    // --- Save results ---
+    benchmark.saveResultsToFile(outputFile.c_str());
+    std::cout << "\nBenchmark results saved to: " << outputFile << std::endl;
 }
 
 int main(int argc, char **argv)
