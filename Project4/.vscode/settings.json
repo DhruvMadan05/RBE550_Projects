@@ -48,6 +48,7 @@
         "map": "cpp",
         "sstream": "cpp",
         "valarray": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "fstream": "cpp"
     }
 }
