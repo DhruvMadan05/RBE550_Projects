@@ -97,8 +97,17 @@ void pendulumODE(const ompl::control::ODESolver::StateType &q, const ompl::contr
     qdot[1] = -g * std::cos(theta) + tau;
 }
 
-void pendulumPostIntegration(const ompl::base::State * /* state */, const ompl::control::Control * /* control */,
-                               double /* duration */, ompl::base::State *result)
+
+/**
+ * Ensure theta remains within [-pi, pi].
+ * 
+ * @param state The initial state before integration.
+ * @param control The control input applied during integration.
+ * @param duration The duration of the integration.
+ * @param result The resulting state after integration (to be modified).
+ */
+void pendulumPostIntegration(const ompl::base::State *state, const ompl::control::Control *control,
+                               double duration, ompl::base::State *result)
 {
     // Ensure theta remains within [-pi, pi] after integration
     auto *s = result->as<ompl::base::RealVectorStateSpace::StateType>();
@@ -109,6 +118,22 @@ void pendulumPostIntegration(const ompl::base::State * /* state */, const ompl::
     while (theta < -M_PI)
         theta += 2 * M_PI;
 }
+
+class PendulumValidityChecker : public ompl::base::StateValidityChecker
+{
+public:
+    PendulumValidityChecker(const ompl::base::SpaceInformationPtr &si) : ompl::base::StateValidityChecker(si)
+    {
+    }
+
+    bool isValid(const ompl::base::State *state) const override
+    {
+        // For the pendulum, we can consider all states valid as long as omega is within bounds
+        const auto *s = state->as<ompl::base::RealVectorStateSpace::StateType>();
+        double omega = s->values[1];
+        return (omega >= -10.0 && omega <= 10.0);
+    }
+};
 
 
 /**
@@ -129,9 +154,12 @@ ompl::control::SimpleSetupPtr createPendulum(double torque)
     stateBounds.setHigh(1, 10.0);   // omega upper bound
     stateSpace->setBounds(stateBounds); 
 
+    // Register the projection for KPIECE planner
+    stateSpace->registerProjection("PendulumProjection", std::make_shared<PendulumProjection>(stateSpace.get()));
+
     // Create the control space for the pendulum
-    auto controlSpace = std::make_shared<ompl::control::RealVectorControlSpace
-        >(stateSpace, 1);  // 1D control space for torque
+    // 1D control space for torque
+    auto controlSpace = std::make_shared<ompl::control::RealVectorControlSpace>(stateSpace, 1);
     // Set the bounds for the control (torque)
     ompl::base::RealVectorBounds controlBounds(1);
     controlBounds.setLow(0, -torque);  // torque lower bound
@@ -141,22 +169,53 @@ ompl::control::SimpleSetupPtr createPendulum(double torque)
     // Create the SimpleSetup object
     ompl::control::SimpleSetupPtr ss = std::make_shared<ompl::control::SimpleSetup>(controlSpace); 
 
-    // Set the state validity checker using the collisionChecking function
-    ss->setStateValidityChecker([&](const ompl::base::State *state) {
-        const auto *s = state->as<ompl::base::RealVectorStateSpace::StateType>();
-        double theta = s->values[0];
-        double omega = s->values[1];
-        // For the pendulum, we can consider all states valid (no obstacles)
-        return true;
-    });
+    // set the ode solver
+    ompl::control::ODESolverPtr odeSolver = std::make_shared<ompl::control::ODEBasicSolver<>>(ss->getSpaceInformation(), &pendulumODE);
+    ss->setStatePropagator(ompl::control::ODESolver::getStatePropagator(odeSolver, &pendulumPostIntegration));
+
+    // Set the state validity checker
+    ss->setStateValidityChecker(std::make_shared<PendulumValidityChecker>(ss->getSpaceInformation()));
+
+    // set the start and goal states
+    ompl::base::ScopedState<> start(stateSpace);
+    start[0] = -M_PI / 2.0;  // initial theta
+    start[1] = 0.0;  // initial omega 
+    ompl::base::ScopedState<> goal(stateSpace);
+    goal[0] = M_PI / 2.0;  // goal theta
+    goal[1] = 0.0;   // goal omega
+
+    // Set the start and goal states with a tolerance
+    ss->setStartAndGoalStates(start, goal, 0.1); // 0.1 tolerance
+
+    ss->setup();
+    std::cout << "Pendulum setup complete." << std::endl;
 
     return ss;
 }
 
 void planPendulum(ompl::control::SimpleSetupPtr &ss, int choice)
 {
-    // TODO: Do some motion planning for the pendulum
-    // choice is what planner to use.
+    ompl::base::PlannerPtr planner;
+
+    if (choice == 1)
+        planner = std::make_shared<ompl::control::RRT>(ss->getSpaceInformation());
+    else if (choice == 2)
+        planner = std::make_shared<ompl::control::EST>(ss->getSpaceInformation());
+    else
+        planner = std::make_shared<ompl::control::KPIECE1>(ss->getSpaceInformation());
+        
+    ss->setPlanner(planner);
+    ompl::base::PlannerStatus solved = ss->solve(5.0);
+
+    if (solved)
+    {
+        std::cout << "Planner found a solution!\n";
+        auto path = ss->getSolutionPath().asGeometric();
+        path.printAsMatrix(std::cout);
+    }
+    else
+        std::cout << "No solution found.\n";
+
 }
 
 void benchmarkPendulum(ompl::control::SimpleSetupPtr &ss)
