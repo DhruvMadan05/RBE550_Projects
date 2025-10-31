@@ -142,6 +142,54 @@ pendulum/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/pendulum.dir/build.make CMakeFiles/pendulum.dir/build
 .PHONY : pendulum/fast
 
+AO-RRT.o: AO-RRT.cpp.o
+.PHONY : AO-RRT.o
+
+# target to build an object file
+AO-RRT.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/car.dir/build.make CMakeFiles/car.dir/AO-RRT.cpp.o
+.PHONY : AO-RRT.cpp.o
+
+AO-RRT.i: AO-RRT.cpp.i
+.PHONY : AO-RRT.i
+
+# target to preprocess a source file
+AO-RRT.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/car.dir/build.make CMakeFiles/car.dir/AO-RRT.cpp.i
+.PHONY : AO-RRT.cpp.i
+
+AO-RRT.s: AO-RRT.cpp.s
+.PHONY : AO-RRT.s
+
+# target to generate assembly for a file
+AO-RRT.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/car.dir/build.make CMakeFiles/car.dir/AO-RRT.cpp.s
+.PHONY : AO-RRT.cpp.s
+
+CollisionChecking.o: CollisionChecking.cpp.o
+.PHONY : CollisionChecking.o
+
+# target to build an object file
+CollisionChecking.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/car.dir/build.make CMakeFiles/car.dir/CollisionChecking.cpp.o
+.PHONY : CollisionChecking.cpp.o
+
+CollisionChecking.i: CollisionChecking.cpp.i
+.PHONY : CollisionChecking.i
+
+# target to preprocess a source file
+CollisionChecking.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/car.dir/build.make CMakeFiles/car.dir/CollisionChecking.cpp.i
+.PHONY : CollisionChecking.cpp.i
+
+CollisionChecking.s: CollisionChecking.cpp.s
+.PHONY : CollisionChecking.s
+
+# target to generate assembly for a file
+CollisionChecking.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/car.dir/build.make CMakeFiles/car.dir/CollisionChecking.cpp.s
+.PHONY : CollisionChecking.cpp.s
+
 car.o: car.cpp.o
 .PHONY : car.o
 
@@ -200,6 +248,12 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... car"
 	@echo "... pendulum"
+	@echo "... AO-RRT.o"
+	@echo "... AO-RRT.i"
+	@echo "... AO-RRT.s"
+	@echo "... CollisionChecking.o"
+	@echo "... CollisionChecking.i"
+	@echo "... CollisionChecking.s"
 	@echo "... car.o"
 	@echo "... car.i"
 	@echo "... car.s"

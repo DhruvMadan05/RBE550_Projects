@@ -784,7 +784,9 @@ CMakeFiles/car.dir/car.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__fwd/stack.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/print \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/unistd.h \
-  /usr/local/include/ompl-1.8/ompl/base/ProjectionEvaluator.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/fstream \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/filesystem \
+  /usr/local/include/ompl-1.8/ompl/base/SpaceInformation.h \
   /usr/local/include/ompl-1.8/ompl/base/State.h \
   /opt/homebrew/include/boost/concept_check.hpp \
   /opt/homebrew/include/boost/concept/assert.hpp \
@@ -882,7 +884,60 @@ CMakeFiles/car.dir/car.cpp.o: \
   /opt/homebrew/include/boost/preprocessor/punctuation/comma_if.hpp \
   /opt/homebrew/include/boost/preprocessor/punctuation/comma.hpp \
   /opt/homebrew/include/boost/concept/detail/concept_undef.hpp \
+  /usr/local/include/ompl-1.8/ompl/base/StateValidityChecker.h \
   /usr/local/include/ompl-1.8/ompl/util/ClassForward.h \
+  /usr/local/include/ompl-1.8/ompl/base/MotionValidator.h \
+  /usr/local/include/ompl-1.8/ompl/base/StateSpace.h \
+  /usr/local/include/ompl-1.8/ompl/base/StateSpaceTypes.h \
+  /usr/local/include/ompl-1.8/ompl/base/StateSampler.h \
+  /usr/local/include/ompl-1.8/ompl/util/RandomNumbers.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/random \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/bernoulli_distribution.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/uniform_real_distribution.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/generate_canonical.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/binomial_distribution.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/cauchy_distribution.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/chi_squared_distribution.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/gamma_distribution.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/exponential_distribution.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/default_random_engine.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/linear_congruential_engine.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/is_seed_sequence.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/discard_block_engine.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/discrete_distribution.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/numeric \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__numeric/accumulate.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__numeric/adjacent_difference.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__numeric/inner_product.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__numeric/iota.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__numeric/partial_sum.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/extreme_value_distribution.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/fisher_f_distribution.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/geometric_distribution.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/negative_binomial_distribution.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/poisson_distribution.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/clamp_to_integral.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/normal_distribution.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/independent_bits_engine.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/knuth_b.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/shuffle_order_engine.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/lognormal_distribution.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/mersenne_twister_engine.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/piecewise_constant_distribution.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/piecewise_linear_distribution.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/random_device.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/ranlux.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/subtract_with_carry_engine.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/seed_seq.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/student_t_distribution.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/uniform_random_bit_generator.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/weibull_distribution.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cassert \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/assert.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_assert.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_static_assert.h \
+  /usr/local/include/ompl-1.8/ompl/util/ProlateHyperspheroid.h \
+  /usr/local/include/ompl-1.8/ompl/base/ProjectionEvaluator.h \
   /usr/local/include/ompl-1.8/ompl/util/Console.h \
   /usr/local/include/ompl-1.8/ompl/base/GenericParam.h \
   /usr/local/include/ompl-1.8/ompl/util/String.h \
@@ -901,10 +956,6 @@ CMakeFiles/car.dir/car.cpp.o: \
   /Library/Developer/CommandLineTools/usr/lib/clang/17/include/arm_fp16.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/complex \
   /opt/homebrew/include/eigen3/Eigen/src/Core/util/MKL_support.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cassert \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/assert.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_assert.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_static_assert.h \
   /opt/homebrew/include/eigen3/Eigen/src/Core/util/Constants.h \
   /opt/homebrew/include/eigen3/Eigen/src/Core/util/Meta.h \
   /opt/homebrew/include/eigen3/Eigen/src/Core/util/ForwardDeclarations.h \
@@ -1027,66 +1078,23 @@ CMakeFiles/car.dir/car.cpp.o: \
   /opt/homebrew/include/eigen3/Eigen/src/Core/StlIterators.h \
   /opt/homebrew/include/eigen3/Eigen/src/Core/GlobalFunctions.h \
   /opt/homebrew/include/eigen3/Eigen/src/Core/util/ReenableStupidWarnings.h \
-  /usr/local/include/ompl-1.8/ompl/control/SimpleSetup.h \
-  /usr/local/include/ompl-1.8/ompl/base/Planner.h \
-  /usr/local/include/ompl-1.8/ompl/base/SpaceInformation.h \
-  /usr/local/include/ompl-1.8/ompl/base/StateValidityChecker.h \
-  /usr/local/include/ompl-1.8/ompl/base/MotionValidator.h \
-  /usr/local/include/ompl-1.8/ompl/base/StateSpace.h \
-  /usr/local/include/ompl-1.8/ompl/base/StateSpaceTypes.h \
-  /usr/local/include/ompl-1.8/ompl/base/StateSampler.h \
-  /usr/local/include/ompl-1.8/ompl/util/RandomNumbers.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/random \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/bernoulli_distribution.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/uniform_real_distribution.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/generate_canonical.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/binomial_distribution.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/cauchy_distribution.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/chi_squared_distribution.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/gamma_distribution.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/exponential_distribution.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/default_random_engine.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/linear_congruential_engine.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/is_seed_sequence.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/discard_block_engine.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/discrete_distribution.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/numeric \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__numeric/accumulate.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__numeric/adjacent_difference.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__numeric/inner_product.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__numeric/iota.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__numeric/partial_sum.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/extreme_value_distribution.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/fisher_f_distribution.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/geometric_distribution.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/negative_binomial_distribution.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/poisson_distribution.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/clamp_to_integral.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/normal_distribution.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/independent_bits_engine.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/knuth_b.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/shuffle_order_engine.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/lognormal_distribution.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/mersenne_twister_engine.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/piecewise_constant_distribution.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/piecewise_linear_distribution.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/random_device.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/ranlux.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/subtract_with_carry_engine.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/seed_seq.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/student_t_distribution.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/uniform_random_bit_generator.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/weibull_distribution.h \
-  /usr/local/include/ompl-1.8/ompl/util/ProlateHyperspheroid.h \
   /usr/local/include/ompl-1.8/ompl/base/ValidStateSampler.h \
   /usr/local/include/ompl-1.8/ompl/util/Exception.h \
+  /usr/local/include/ompl-1.8/ompl/base/ScopedState.h \
+  /usr/local/include/ompl-1.8/ompl/base/objectives/PathLengthOptimizationObjective.h \
+  /usr/local/include/ompl-1.8/ompl/base/OptimizationObjective.h \
+  /usr/local/include/ompl-1.8/ompl/base/Cost.h \
   /usr/local/include/ompl-1.8/ompl/base/ProblemDefinition.h \
   /usr/local/include/ompl-1.8/ompl/base/Goal.h \
   /usr/local/include/ompl-1.8/ompl/base/GoalTypes.h \
   /usr/local/include/ompl-1.8/ompl/base/Path.h \
-  /usr/local/include/ompl-1.8/ompl/base/Cost.h \
   /usr/local/include/ompl-1.8/ompl/base/SolutionNonExistenceProof.h \
-  /usr/local/include/ompl-1.8/ompl/base/ScopedState.h \
+  /usr/local/include/ompl-1.8/ompl/base/samplers/InformedStateSampler.h \
+  /usr/local/include/ompl-1.8/ompl/control/Control.h \
+  /usr/local/include/ompl-1.8/ompl/base/spaces/RealVectorStateSpace.h \
+  /usr/local/include/ompl-1.8/ompl/base/spaces/SO2StateSpace.h \
+  /usr/local/include/ompl-1.8/ompl/control/SimpleSetup.h \
+  /usr/local/include/ompl-1.8/ompl/base/Planner.h \
   /usr/local/include/ompl-1.8/ompl/base/PlannerData.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/set \
   /opt/homebrew/include/boost/serialization/access.hpp \
@@ -1099,7 +1107,6 @@ CMakeFiles/car.dir/car.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/iomanip \
   /usr/local/include/ompl-1.8/ompl/control/SpaceInformation.h \
   /usr/local/include/ompl-1.8/ompl/control/ControlSpace.h \
-  /usr/local/include/ompl-1.8/ompl/control/Control.h \
   /usr/local/include/ompl-1.8/ompl/control/ControlSampler.h \
   /usr/local/include/ompl-1.8/ompl/control/ControlSpaceTypes.h \
   /usr/local/include/ompl-1.8/ompl/control/DirectedControlSampler.h \
@@ -2209,5 +2216,23 @@ CMakeFiles/car.dir/car.cpp.o: \
   /opt/homebrew/include/boost/numeric/odeint/integrate/max_step_checker.hpp \
   /opt/homebrew/include/boost/numeric/odeint/util/odeint_error.hpp \
   /opt/homebrew/include/boost/numeric/odeint/integrate/integrate_adaptive.hpp \
+  /usr/local/include/ompl-1.8/ompl/control/spaces/RealVectorControlSpace.h \
+  /usr/local/include/ompl-1.8/ompl/control/planners/kpiece/KPIECE1.h \
+  /usr/local/include/ompl-1.8/ompl/control/planners/PlannerIncludes.h \
+  /usr/local/include/ompl-1.8/ompl/datastructures/GridB.h \
+  /usr/local/include/ompl-1.8/ompl/datastructures/GridN.h \
+  /usr/local/include/ompl-1.8/ompl/datastructures/Grid.h \
+  /usr/local/include/ompl-1.8/ompl/datastructures/BinaryHeap.h \
+  /usr/local/include/ompl-1.8/ompl/util/DisableCompilerWarning.h \
+  /usr/local/include/ompl-1.8/ompl/control/planners/sst/SST.h \
+  /usr/local/include/ompl-1.8/ompl/datastructures/NearestNeighbors.h \
   /Users/dhruvmadan/RBE\ 550/Project4/code/CollisionChecking.h \
-  /Users/dhruvmadan/RBE\ 550/Project4/code/AO-RRT.h
+  /Users/dhruvmadan/RBE\ 550/Project4/code/AO-RRT.h \
+  /usr/local/include/ompl-1.8/ompl/tools/config/SelfConfig.h \
+  /usr/local/include/ompl-1.8/ompl/datastructures/NearestNeighborsSqrtApprox.h \
+  /usr/local/include/ompl-1.8/ompl/datastructures/NearestNeighborsLinear.h \
+  /usr/local/include/ompl-1.8/ompl/datastructures/NearestNeighborsGNAT.h \
+  /usr/local/include/ompl-1.8/ompl/datastructures/GreedyKCenters.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/unordered_set \
+  /usr/local/include/ompl-1.8/ompl/datastructures/NearestNeighborsGNATNoThreadSafety.h \
+  /usr/local/include/ompl-1.8/ompl/datastructures/Permutation.h

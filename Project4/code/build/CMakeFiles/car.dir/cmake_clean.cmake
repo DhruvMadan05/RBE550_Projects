@@ -1,4 +1,8 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/car.dir/AO-RRT.cpp.o"
+  "CMakeFiles/car.dir/AO-RRT.cpp.o.d"
+  "CMakeFiles/car.dir/CollisionChecking.cpp.o"
+  "CMakeFiles/car.dir/CollisionChecking.cpp.o.d"
   "CMakeFiles/car.dir/car.cpp.o"
   "CMakeFiles/car.dir/car.cpp.o.d"
   "car"

@@ -7,7 +7,7 @@ find_package(ompl REQUIRED)
 
 include_directories(${OMPL_INCLUDE_DIRS})
 
-add_executable(car car.cpp)
+add_executable(car car.cpp AO-RRT.cpp CollisionChecking.cpp)
 target_link_libraries(car ${OMPL_LIBRARIES})
 
 add_executable(pendulum pendulum.cpp)
