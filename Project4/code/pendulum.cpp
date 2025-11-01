@@ -22,6 +22,8 @@
 #include <ompl/control/ODESolver.h>
 #include <ompl/control/spaces/RealVectorControlSpace.h>
 
+#include <ompl/tools/benchmark/Benchmark.h>
+
 // 3 planners to choose from
 #include <ompl/control/planners/rrt/RRT.h>
 #include <ompl/control/planners/est/EST.h>
@@ -197,7 +199,8 @@ ompl::control::SimpleSetupPtr createPendulum(double torque)
 
     // set the ode solver
     ompl::control::ODESolverPtr odeSolver = std::make_shared<ompl::control::ODEBasicSolver<>>(ss->getSpaceInformation(), &pendulumODE);
-    ss->setStatePropagator(ompl::control::ODESolver::getStatePropagator(odeSolver, &pendulumPostIntegration));
+    //ss->setStatePropagator(ompl::control::ODESolver::getStatePropagator(odeSolver, &pendulumPostIntegration));
+    ss->setStatePropagator(ompl::control::ODESolver::getStatePropagator(odeSolver));
 
     // Set the state validity checker
     ss->setStateValidityChecker(std::make_shared<PendulumValidityChecker>(ss->getSpaceInformation()));
@@ -258,11 +261,39 @@ void planPendulum(ompl::control::SimpleSetupPtr &ss, int choice)
 
 /**
  * Benchmarking for the pendulum.
+ * Using planners RRT, EST, KPIECE1. all with torque limits of 3
  * @param ss The SimpleSetup object for the pendulum.
  */
 void benchmarkPendulum(ompl::control::SimpleSetupPtr &ss)
 {
-    // TODO: Do some benchmarking for the pendulum
+    // Always use a torque limit of 3 for benchmarking
+    double benchmarkTorque = 3.0;
+
+    // Create a new pendulum setup with fixed torque = 3
+    ompl::control::SimpleSetupPtr benchSS = createPendulum(benchmarkTorque);
+
+    // Create the benchmark object
+    ompl::tools::Benchmark b(*benchSS, "PendulumBenchmark_Torque3");
+
+    // Add planners to benchmark
+    b.addPlanner(std::make_shared<ompl::control::RRT>(benchSS->getSpaceInformation()));
+    b.addPlanner(std::make_shared<ompl::control::EST>(benchSS->getSpaceInformation()));
+    b.addPlanner(std::make_shared<ompl::control::KPIECE1>(benchSS->getSpaceInformation()));
+
+    // Configure benchmark parameters
+    ompl::tools::Benchmark::Request req;
+    req.maxTime = 30.0;          // seconds per planner run
+    req.maxMem = 1024.0;         // MB memory limit
+    req.runCount = 20;           // number of runs per planner
+    req.displayProgress = true;  // show progress bar
+
+    // Run the benchmark
+    std::cout << "Running benchmark with torque = 3...\n";
+    b.benchmark(req);
+
+    // Save results
+    b.saveResultsToFile("pendulum_benchmark_torque3.log");
+    std::cout << "Benchmark results saved to pendulum_benchmark_torque3.log\n";
 }
 
 int main(int argc, char **argv)

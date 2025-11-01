@@ -2195,6 +2195,8 @@ CMakeFiles/pendulum.dir/pendulum.cpp.o: /Users/dhruvmadan/RBE\ 550/Project4/code
   /usr/local/include/ompl-1.8/ompl/base/StateSpaceTypes.h \
   /usr/local/include/ompl-1.8/ompl/base/StateValidityChecker.h \
   /usr/local/include/ompl-1.8/ompl/base/ValidStateSampler.h \
+  /usr/local/include/ompl-1.8/ompl/base/goals/GoalRegion.h \
+  /usr/local/include/ompl-1.8/ompl/base/goals/GoalSampleableRegion.h \
   /usr/local/include/ompl-1.8/ompl/base/objectives/PathLengthOptimizationObjective.h \
   /usr/local/include/ompl-1.8/ompl/base/samplers/InformedStateSampler.h \
   /usr/local/include/ompl-1.8/ompl/base/spaces/RealVectorBounds.h \
@@ -2223,6 +2225,9 @@ CMakeFiles/pendulum.dir/pendulum.cpp.o: /Users/dhruvmadan/RBE\ 550/Project4/code
   /usr/local/include/ompl-1.8/ompl/datastructures/NearestNeighbors.h \
   /usr/local/include/ompl-1.8/ompl/datastructures/PDF.h \
   /usr/local/include/ompl-1.8/ompl/geometric/PathGeometric.h \
+  /usr/local/include/ompl-1.8/ompl/geometric/PathSimplifier.h \
+  /usr/local/include/ompl-1.8/ompl/geometric/SimpleSetup.h \
+  /usr/local/include/ompl-1.8/ompl/tools/benchmark/Benchmark.h \
   /usr/local/include/ompl-1.8/ompl/util/ClassForward.h \
   /usr/local/include/ompl-1.8/ompl/util/Console.h \
   /usr/local/include/ompl-1.8/ompl/util/DisableCompilerWarning.h \
@@ -2246,6 +2251,12 @@ CMakeFiles/pendulum.dir/pendulum.cpp.o: /Users/dhruvmadan/RBE\ 550/Project4/code
 /usr/local/include/ompl-1.8/ompl/util/Console.h:
 
 /usr/local/include/ompl-1.8/ompl/util/ClassForward.h:
+
+/usr/local/include/ompl-1.8/ompl/tools/benchmark/Benchmark.h:
+
+/usr/local/include/ompl-1.8/ompl/geometric/SimpleSetup.h:
+
+/usr/local/include/ompl-1.8/ompl/geometric/PathSimplifier.h:
 
 /usr/local/include/ompl-1.8/ompl/geometric/PathGeometric.h:
 
@@ -4221,6 +4232,8 @@ CMakeFiles/pendulum.dir/pendulum.cpp.o: /Users/dhruvmadan/RBE\ 550/Project4/code
 
 /opt/homebrew/include/boost/core/noncopyable.hpp:
 
+/usr/local/include/ompl-1.8/ompl/base/goals/GoalSampleableRegion.h:
+
 /opt/homebrew/include/boost/core/ignore_unused.hpp:
 
 /opt/homebrew/include/boost/mpl/vector/aux_/item.hpp:
@@ -4258,6 +4271,8 @@ CMakeFiles/pendulum.dir/pendulum.cpp.o: /Users/dhruvmadan/RBE\ 550/Project4/code
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/piecewise_constant_distribution.h:
 
 /opt/homebrew/include/boost/config/no_tr1/cmath.hpp:
+
+/usr/local/include/ompl-1.8/ompl/base/goals/GoalRegion.h:
 
 /opt/homebrew/include/boost/fusion/view/zip_view/detail/distance_impl.hpp:
 

@@ -33,6 +33,15 @@
 #include "AO-RRT.h"
 
 // Your projection for the car
+/**
+ * Projection for the car state space.
+ * The car state is represented as (x, y, theta, v), where
+ * - x, y are the position coordinates
+ * - theta is the heading angle
+ * - v is the velocity
+ * 
+ * The projection maps the state to a 2D space defined by (x, y).
+ */
 class CarProjection : public ompl::base::ProjectionEvaluator
 {
 public:
@@ -40,12 +49,19 @@ public:
     {
     }
 
+    /** Get the dimension of the projection space. 
+     * @return The dimension of the projection space (2 for car).
+    */
     unsigned int getDimension() const override
     {
         // TODO: The dimension of your projection for the car
         return 2;
     }
 
+    /** Project the given state to the projection space.
+     * @param state The state to project.
+     * @param projection The resulting projection vector.
+    */
     void project(const ompl::base::State *state, Eigen::Ref<Eigen::VectorXd> projection) const override
     {
         const auto *s = state->as<ompl::base::RealVectorStateSpace::StateType>();
@@ -54,18 +70,33 @@ public:
     }
 };
 
+/** ODE defining the car dynamics.
+ * State vector: (x, y, theta, v)
+ * Control vector: (omega, alpha)
+ * The dynamics are defined as:
+ * dx/dt = v * cos(theta)
+ * dy/dt = v * sin(theta)
+ * dtheta/dt = omega
+ * dv/dt = alpha
+ * @param q The current state vector.
+ * @param control The control input.
+ * @param qdot The resulting state derivative.
+ */
 void carODE(const ompl::control::ODESolver::StateType &q, const ompl::control::Control *control,
             ompl::control::ODESolver::StateType &qdot)
 {
+    // q has size 4
     double x = q[0];
     double y = q[1];
     double theta = q[2];
     double v = q[3];
 
+    // control is 2D: (omega, alpha)
     const double *u = control->as<ompl::control::RealVectorControlSpace::ControlType>()->values;
     double omega = u[0];
     double alpha = u[1];
 
+    // Compute the state derivatives
     qdot.resize(4);
     qdot[0] = v * std::cos(theta);
     qdot[1] = v * std::sin(theta);
@@ -73,6 +104,14 @@ void carODE(const ompl::control::ODESolver::StateType &q, const ompl::control::C
     qdot[3] = alpha;
 }
 
+/**
+ * Post-integration event to normalize the heading angle theta.
+ * Ensures that theta remains within the range [-pi, pi].
+ * @param state The initial state before integration.
+ * @param control The control input applied.
+ * @param duration The duration of integration.
+ * @param result The resulting state after integration.
+ */
 void carPostIntegration(const ompl::base::State *state, const ompl::control::Control *control,
                         double duration, ompl::base::State *result)
 {
@@ -84,7 +123,7 @@ void carPostIntegration(const ompl::base::State *state, const ompl::control::Con
         theta += 2 * M_PI;
 }
 
-
+/** Create a street environment with predefined obstacles. */
 void makeStreet(std::vector<Rectangle> &  obstacles )
 {
     // Do not change the obstacles here. These are the same obstacles used for grading.
@@ -94,7 +133,9 @@ void makeStreet(std::vector<Rectangle> &  obstacles )
     obstacles.emplace_back(Rectangle{8, 3, 4, 2});
 }
 
-
+/** Validity checker for the car state space. 
+ * The car is represented as a point with a small radius for collision checking. 
+*/
 class CarValidityChecker : public ompl::base::StateValidityChecker
 {
 public:
@@ -102,6 +143,10 @@ public:
     {
     }
 
+    /** Check if the given state is valid (collision-free and within bounds).
+     * @param state The state to be checked.
+     * @return True if the state is valid, false otherwise.
+    */
     bool isValid(const ompl::base::State *state) const override
     {
         const auto *s = state->as<ompl::base::RealVectorStateSpace::StateType>();
@@ -126,7 +171,10 @@ private:
     std::vector<Rectangle> obstacles_;
 };
 
-
+/** Create and setup the car's planning environment.
+ * @param obstacles The vector to store the obstacles in the environment.
+ * @return The SimpleSetup object configured for the car.
+*/
 ompl::control::SimpleSetupPtr createCar(std::vector<Rectangle> &obstacles)
 {
     // TODO: Create and setup the car's state space, control space, validity checker, everything you need for planning.
@@ -174,6 +222,7 @@ ompl::control::SimpleSetupPtr createCar(std::vector<Rectangle> &obstacles)
     start[2] = 0.0;  // heading
     start[3] = 0.0;  // velocity
 
+    // Goal state
     ompl::base::ScopedState<> goal(stateSpace);
     goal[0] = 7.0;
     goal[1] = 4.0;
@@ -190,6 +239,11 @@ ompl::control::SimpleSetupPtr createCar(std::vector<Rectangle> &obstacles)
     return ss;
 }
 
+/**
+ * Plan a path for the car using the specified planner.
+ * @param ss The SimpleSetup object configured for the car.
+ * @param choice The planner choice (1: KPIECE1, 2: SST, 3: AO-RRT).
+ */
 void planCar(ompl::control::SimpleSetupPtr &ss, int choice)
 {
     ompl::base::PlannerPtr planner;
@@ -212,7 +266,7 @@ void planCar(ompl::control::SimpleSetupPtr &ss, int choice)
     }
 
     ss->setPlanner(planner);
-    ompl::base::PlannerStatus solved = ss->solve(20.0);
+    ompl::base::PlannerStatus solved = ss->solve(1000.0);
 
     if (solved)
     {
@@ -231,6 +285,9 @@ void planCar(ompl::control::SimpleSetupPtr &ss, int choice)
     }
 }
 
+/** Benchmark the car planning problem using different planners. 
+ * @param ss The SimpleSetup object configured for the car.
+*/
 void benchmarkCar(ompl::control::SimpleSetupPtr &ss)
 {
     // implement benchmarking logic for 3 planners
@@ -248,9 +305,9 @@ void benchmarkCar(ompl::control::SimpleSetupPtr &ss)
     ompl::tools::Benchmark benchmark(*ss, "CarBenchmark");
 
     // Add planners
-    benchmark.addPlanner(std::make_shared<ompl::control::KPIECE1>(ss->getSpaceInformation()));
+    // benchmark.addPlanner(std::make_shared<ompl::control::KPIECE1>(ss->getSpaceInformation()));
     benchmark.addPlanner(std::make_shared<ompl::control::SST>(ss->getSpaceInformation()));
-    benchmark.addPlanner(std::make_shared<ompl::control::AORRT>(ss->getSpaceInformation()));
+    // benchmark.addPlanner(std::make_shared<ompl::control::AORRT>(ss->getSpaceInformation()));
 
     // --- Experiment settings ---
     ompl::tools::Benchmark::Request request;

@@ -81,24 +81,5 @@ for pid, pname in planners:
 
 conn.close()
 
-
-
-# --- Output as LaTeX table
-print("\\begin{table}[h!]")
-print("\\centering")
-print("\\begin{tabular}{lcccc}")
-print("\\hline")
-print("Planner & Time (s) & Path Length & Tree Nodes & Success Rate (\\%)\\\\")
-print("\\hline")
-
-for r in results:
-    print(f"{r['Planner']} & "
-          f"{r['Computation Time (s)']:.2f} & "
-          f"{r['Path Length']:.2f} & "
-          f"{r['Tree Nodes']:.0f} & "
-          f"{r['Success Rate (%)']:.1f}\\\\")
-print("\\hline")
-print("\\end{tabular}")
-print("\\caption{Benchmark results for pendulum planners (torque=3).}")
-print("\\label{tab:pendulum-benchmark}")
-print("\\end{table}")
+print("\nBenchmark Results:")
+print(results)

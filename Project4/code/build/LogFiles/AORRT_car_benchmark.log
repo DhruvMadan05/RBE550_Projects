@@ -1,0 +1,254 @@
+OMPL version 1.8.0
+Experiment CarBenchmark
+0 experiment properties
+Running on MacBook-Air-2185.local
+Starting at 2025-10-31 10:09:03
+<<<|
+Properties of the state space 'RealVectorSpace0'
+  - signature: 2 1 4 
+  - dimension: 4
+  - extent: 29.0427
+  - sanity checks for state space passed
+  - probability of valid states: 0.742
+  - average length of a valid motion: 5.69174
+  - average number of samples drawn per second: sampleUniform()=2.12766e+07 sampleUniformNear()=2e+07 sampleGaussian()=3.84615e+06
+Settings for the state space 'RealVectorSpace0'
+  - state validity check resolution: 1%
+  - valid segment count factor: 1
+  - state space:
+Real vector state space 'RealVectorSpace0' of dimension 4 with bounds: 
+  - min: -10 -10 -3.14159 -1 
+  - max: 10 10 3.14159 1 
+
+Declared parameters:
+longest_valid_segment_fraction = 0.01
+max_control_duration = 10
+min_control_duration = 1
+projection.CarProjection.cellsize.0 = 1.07266
+projection.CarProjection.cellsize.1 = 1.09045
+projection.CarProjection.cellsize_factor = 0
+projection.cellsize.0 = 0.0669216
+projection.cellsize.1 = 0.0684651
+projection.cellsize_factor = 0
+propagation_step_size = 0.290427
+valid_segment_count_factor = 1
+Valid state sampler named uniform with parameters:
+nr_attempts = 100
+  - control space:
+Real vector control space 'RealVectorControl[RealVectorSpace0]' with bounds: 
+  - min: -0.3 -0.3 
+  - max: 0.3 0.3 
+  - can propagate backward: yes
+  - propagation step size: 0.290427
+  - propagation duration: [1, 10]
+Planner KPIECE1 specs:
+Multithreaded:                 No
+Reports approximate solutions: Yes
+Can optimize solutions:        No
+Aware of the following parameters: bad_score_factor border_fraction goal_bias good_score_factor max_close_samples
+Declared parameters for planner KPIECE1:
+bad_score_factor = 0.45
+border_fraction = 0.8
+goal_bias = 0.05
+good_score_factor = 0.9
+max_close_samples = 30
+Start states:
+RealVectorState [1 -5 0 0]
+Goal state, threshold = 0.5, memory address = 0x1531044a8, state = 
+RealVectorState [7 4 3.14 0]
+Optimization Objective: Path Length @0x153104528
+Optimization Threshold: 0
+Average state cost: 0
+There are 0 solutions
+
+Properties of benchmarked planners:
+Planner AORRT specs:
+Multithreaded:                 No
+Reports approximate solutions: Yes
+Can optimize solutions:        No
+Aware of the following parameters: goal_bias
+|>>>
+<<<|
+hw.ncpu: 8
+hw.byteorder: 1234
+hw.memsize: 17179869184
+hw.activecpu: 8
+hw.perflevel0.physicalcpu: 4
+hw.perflevel0.physicalcpu_max: 4
+hw.perflevel0.logicalcpu: 4
+hw.perflevel0.logicalcpu_max: 4
+hw.perflevel0.l1icachesize: 196608
+hw.perflevel0.l1dcachesize: 131072
+hw.perflevel0.l2cachesize: 16777216
+hw.perflevel0.cpusperl2: 4
+hw.perflevel0.name: Performance
+hw.perflevel1.physicalcpu: 4
+hw.perflevel1.physicalcpu_max: 4
+hw.perflevel1.logicalcpu: 4
+hw.perflevel1.logicalcpu_max: 4
+hw.perflevel1.l1icachesize: 131072
+hw.perflevel1.l1dcachesize: 65536
+hw.perflevel1.l2cachesize: 4194304
+hw.perflevel1.cpusperl2: 4
+hw.perflevel1.name: Efficiency
+hw.optional.arm.FEAT_CRC32: 1
+hw.optional.arm.FEAT_FlagM: 1
+hw.optional.arm.FEAT_FlagM2: 1
+hw.optional.arm.FEAT_FHM: 1
+hw.optional.arm.FEAT_DotProd: 1
+hw.optional.arm.FEAT_SHA3: 1
+hw.optional.arm.FEAT_RDM: 1
+hw.optional.arm.FEAT_LSE: 1
+hw.optional.arm.FEAT_SHA256: 1
+hw.optional.arm.FEAT_SHA512: 1
+hw.optional.arm.FEAT_SHA1: 1
+hw.optional.arm.FEAT_AES: 1
+hw.optional.arm.FEAT_PMULL: 1
+hw.optional.arm.FEAT_SPECRES: 0
+hw.optional.arm.FEAT_SPECRES2: 0
+hw.optional.arm.FEAT_SB: 1
+hw.optional.arm.FEAT_FRINTTS: 1
+hw.optional.arm.FEAT_PACIMP: 1
+hw.optional.arm.FEAT_LRCPC: 1
+hw.optional.arm.FEAT_LRCPC2: 1
+hw.optional.arm.FEAT_FCMA: 1
+hw.optional.arm.FEAT_JSCVT: 1
+hw.optional.arm.FEAT_PAuth: 1
+hw.optional.arm.FEAT_PAuth2: 1
+hw.optional.arm.FEAT_FPAC: 1
+hw.optional.arm.FEAT_FPACCOMBINE: 0
+hw.optional.arm.FEAT_DPB: 1
+hw.optional.arm.FEAT_DPB2: 1
+hw.optional.arm.FEAT_BF16: 1
+hw.optional.arm.FEAT_EBF16: 0
+hw.optional.arm.FEAT_I8MM: 1
+hw.optional.arm.FEAT_WFxT: 0
+hw.optional.arm.FEAT_RPRES: 0
+hw.optional.arm.FEAT_CSSC: 0
+hw.optional.arm.FEAT_HBC: 0
+hw.optional.arm.FEAT_ECV: 1
+hw.optional.arm.FEAT_AFP: 0
+hw.optional.arm.FEAT_LSE2: 1
+hw.optional.arm.FEAT_CSV2: 1
+hw.optional.arm.FEAT_CSV3: 1
+hw.optional.arm.FEAT_DIT: 1
+hw.optional.arm.AdvSIMD: 1
+hw.optional.arm.AdvSIMD_HPFPCvt: 1
+hw.optional.arm.FEAT_FP16: 1
+hw.optional.arm.FEAT_SSBS: 1
+hw.optional.arm.FEAT_BTI: 1
+hw.optional.arm.FEAT_SME: 0
+hw.optional.arm.FEAT_SME2: 0
+hw.optional.arm.SME_F32F32: 0
+hw.optional.arm.SME_BI32I32: 0
+hw.optional.arm.SME_B16F32: 0
+hw.optional.arm.SME_F16F32: 0
+hw.optional.arm.SME_I8I32: 0
+hw.optional.arm.SME_I16I32: 0
+hw.optional.arm.FEAT_SME_F64F64: 0
+hw.optional.arm.FEAT_SME_I16I64: 0
+hw.optional.arm.FP_SyncExceptions: 1
+hw.optional.arm.caps: 868632327146696703
+hw.optional.arm.sme_max_svl_b: 0
+hw.optional.floatingpoint: 1
+hw.optional.neon: 1
+hw.optional.neon_hpfp: 1
+hw.optional.neon_fp16: 1
+hw.optional.armv8_crc32: 1
+hw.optional.armv8_gpi: 1
+hw.optional.armv8_1_atomics: 1
+hw.optional.armv8_2_fhm: 1
+hw.optional.armv8_2_sha512: 1
+hw.optional.armv8_2_sha3: 1
+hw.optional.armv8_3_compnum: 1
+hw.optional.watchpoint: 4
+hw.optional.breakpoint: 6
+hw.optional.ucnormal_mem: 1
+hw.optional.arm64: 1
+hw.features.allows_security_research: 0
+hw.physicalcpu: 8
+hw.physicalcpu_max: 8
+hw.logicalcpu: 8
+hw.logicalcpu_max: 8
+hw.cputype: 16777228
+hw.cpusubtype: 2
+hw.cpu64bit_capable: 1
+hw.cpufamily: -634136515
+hw.cpusubfamily: 2
+hw.cacheconfig: 8 1 4 0 0 0 0 0 0 0
+hw.cachesize: 3700228096 65536 4194304 0 0 0 0 0 0 0
+hw.pagesize: 16384
+hw.pagesize32: 16384
+hw.cachelinesize: 128
+hw.l1icachesize: 131072
+hw.l1dcachesize: 65536
+hw.l2cachesize: 4194304
+hw.tbfrequency: 24000000
+hw.memsize_usable: 16585129984
+hw.packages: 1
+hw.osenvironment: 
+hw.ephemeral_storage: 0
+hw.use_recovery_securityd: 0
+hw.use_kernelmanagerd: 1
+hw.serialdebugmode: 0
+hw.nperflevels: 2
+hw.targettype: J413
+|>>>
+2301145833 is the random seed
+200 seconds per run
+1024 MB per run
+20 runs per planner
+4012.32 seconds spent to collect the data
+1 enum type
+status|Unknown status|Invalid start|Invalid goal|Unrecognized goal type|Timeout|Approximate solution|Exact solution|Crash|Unknown status|Unknown status
+1 planners
+control_AORRT
+12 common properties
+goal_bias = 0.05
+longest_valid_segment_fraction = 0.01
+max_control_duration = 10
+min_control_duration = 1
+projection.CarProjection.cellsize.0 = 1.07266
+projection.CarProjection.cellsize.1 = 1.09045
+projection.CarProjection.cellsize_factor = 0
+projection.cellsize.0 = 0.0669216
+projection.cellsize.1 = 0.0684651
+projection.cellsize_factor = 0
+propagation_step_size = 0.290427
+valid_segment_count_factor = 1
+13 properties for each run
+approximate solution BOOLEAN
+correct solution BOOLEAN
+graph motions INTEGER
+graph states INTEGER
+memory REAL
+solution clearance REAL
+solution difference REAL
+solution length REAL
+solution segments INTEGER
+solved BOOLEAN
+status ENUM
+time REAL
+valid segment fraction REAL
+20 runs
+0; 1; 362881; 362883; 60; 0; 0; 42.9832; 32; 1; 6; 200.024; 0; 
+0; 1; 297239; 297241; 65.5156; 0; 0; 46.1779; 29; 1; 6; 200.006; 0; 
+0; 1; 453166; 453168; 90.1406; 0; 0; 81.0291; 52; 1; 6; 200.11; 0; 
+0; 1; 306485; 306487; 67.1875; 0; 0; 94.0983; 56; 1; 6; 200.109; 0; 
+0; 1; 332892; 332894; 55.0469; 0; 0; 52.5673; 28; 1; 6; 200.113; 0; 
+0; 1; 363286; 363288; 58.6562; 0; 0; 72.8972; 51; 1; 6; 200.063; 0; 
+0; 1; 310534; 310536; 50.5312; 0; 0; 64.7652; 38; 1; 6; 200.033; 0; 
+0; 1; 409516; 409518; 119.578; 0; 0; 53.729; 33; 1; 6; 200.056; 0; 
+0; 1; 311265; 311267; 50.6562; 0; 0; 36.3034; 19; 1; 6; 200.014; 0; 
+0; 1; 300076; 300078; 65.1719; 0; 0; 47.63; 31; 1; 6; 200.033; 0; 
+0; 1; 261979; 261981; 43.2344; 0; 0; 41.5311; 21; 1; 6; 200.099; 0; 
+0; 1; 374990; 374992; 96.75; 0; 0; 38.0459; 24; 1; 6; 200.076; 0; 
+0; 1; 399148; 399150; 64.2344; 0; 0; 94.6792; 61; 1; 6; 200.088; 0; 
+0; 1; 353731; 353733; 119.875; 0; 0; 54.8907; 37; 1; 6; 200.093; 0; 
+0; 1; 439183; 439185; 86.7656; 0; 0; 94.9696; 61; 1; 6; 200.005; 0; 
+0; 1; 343750; 343752; 72.1406; 0; 0; 49.3726; 28; 1; 6; 200.132; 0; 
+0; 1; 449052; 449054; 130.594; 0; 0; 60.4088; 34; 1; 6; 200.029; 0; 
+0; 1; 380642; 380644; 61.5312; 0; 0; 81.3196; 55; 1; 6; 200.118; 0; 
+0; 1; 373026; 373028; 60.4688; 0; 0; 43.2736; 24; 1; 6; 200.108; 0; 
+0; 1; 369061; 369063; 75.8281; 0; 0; 57.795; 37; 1; 6; 200.083; 0; 
+.
