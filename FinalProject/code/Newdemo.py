@@ -4,6 +4,8 @@ import genesis as gs
 from scenes import create_scene_6blocks, create_scene_stacked
 from symbolic import lift_scene
 
+from task_planner import plan_blocksworld, goal_two_towers
+
 # Ensure Genesis is initialized before building scenes
 if len(sys.argv) > 1 and sys.argv[1] == "gpu":
     gs.init(backend=gs.gpu, logging_level='Warning', logger_verbose_time=False)
@@ -50,3 +52,9 @@ for waypoint in path:
 predicates = lift_scene(franka, BlocksState)
 for atom in predicates.as_pddl_atoms():
     print(atom)
+
+goal = goal_two_towers()
+actions = plan_blocksworld(predicates, goal)
+print("Planned actions:")
+for action in actions:
+    print(action)
