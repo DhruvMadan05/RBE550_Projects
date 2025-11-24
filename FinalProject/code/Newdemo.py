@@ -80,6 +80,30 @@ def execute_action(action, executor, sym):
         except MotionPrimitiveError as exc:
             print(exc)
             return False
+    elif name == "put-down":
+        try:
+            executor.putdown(args[0])
+            return True
+        except MotionPrimitiveError as exc:
+            print(exc)
+            return False
+    elif name == "stack":
+        try:
+            executor.stack(args[0], args[1])
+            return True
+        except MotionPrimitiveError as exc:
+            print(exc)
+            return False
+    elif name == "unstack":
+        try:
+            executor.unstack(args[0], args[1])
+            return True
+        except MotionPrimitiveError as exc:
+            print(exc)
+            return False
+    else:
+        print(f"Unknown action '{name}'")
+        return False
     # handle put-down, stack, unstack similarly
 
 def parse_action(atom: str):
@@ -97,11 +121,38 @@ for action in plan:
     print(action)
 if not plan:
     print("No plan found");
-action = plan[0]
-success = execute_action(action, executor, sym)
-if not success:
-    print("Primitive failed, re-planning…")
-# after each primitive the loop reiterates, re-lifts, and re-plans
+# action = plan[0]
+# success = execute_action(action, executor, sym)
+# if not success:
+#     print("Primitive failed, re-planning…")
+    
+# for block_name, block_entity in BlocksState.items():
+#     print(f"Block {block_name} position: {block_entity.get_pos()}")
+
+# predicates = lift_scene(franka, BlocksState)
+# for atom in predicates.as_pddl_atoms():
+#     print(atom)
+    
+print("\n")
+sym = lift_scene(franka, BlocksState)
+plan = plan_blocksworld(sym, goal_two_towers())
+for action in plan:
+    print(action)
+
+# loop through actions
+while plan is not None and len(plan) > 0:
+    print("\nExecuting next action:")
+    print(plan[0])
+    action = plan[0]
+    success = execute_action(action, executor, sym)
+    if not success:
+        print("Primitive failed, re-planning…")
+        sym = lift_scene(franka, BlocksState)
+        plan = plan_blocksworld(sym, goal_two_towers())
+    else:
+        # action succeeded, move to next action
+        sym = lift_scene(franka, BlocksState)
+        plan = plan_blocksworld(sym, goal_two_towers())
 
 import time
 while True:

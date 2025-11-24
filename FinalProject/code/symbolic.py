@@ -21,8 +21,8 @@ TABLE_Z = 0.0
 XY_ON_TOL = 0.02          # how close XY projections must be to count as stacked
 Z_ON_TOL = 0.01           # acceptable deviation from perfect block height
 TABLE_TOL = 0.008         # slack when checking if a block rests on the plane
-HOLDING_DIST_TOL = 0.05   # block-hand distance threshold to infer holding
-GRIPPER_CLOSED_THRESH = 0.015  # avg finger opening that counts as closed
+HOLDING_DIST_TOL = 0.15   # block-hand distance threshold to infer holding
+GRIPPER_CLOSED_THRESH = 0.025  # avg finger opening that counts as closed
 
 
 @dataclass(frozen=True)
@@ -223,6 +223,7 @@ def _infer_holding(franka: Any, blocks: Sequence[BlockState]) -> Optional[str]:
         return None
     try:
         hand_pos = np.asarray(franka.get_link("hand").get_pos(), dtype=float)
+        print(f"Hand position: {hand_pos}")
     except AttributeError:
         return None
 

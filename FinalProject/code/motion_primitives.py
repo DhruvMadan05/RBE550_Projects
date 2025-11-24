@@ -32,7 +32,7 @@ class MotionPrimitiveError(RuntimeError):
 @dataclass
 class PrimitiveConfig:
     hover_height: float = 0.20
-    grasp_clearance: float = 0.1
+    grasp_clearance: float = 0.08
     lift_height: float = 0.20
     gripper_opening: float = 0.04
     gripper_closed: float = 0.0
@@ -66,8 +66,6 @@ class MotionPrimitiveExecutor:
         print("Gripper Opened")
         hover = self._hover_pose(block)
         grasp = self._grasp_pose(block)
-        print(f"Hover pose: {hover}")
-        print(f"Grasp pose: {grasp}")
         self._move_hand(hover)
         print("Moved to hover pose")
         # While the gripper is not at the grasp pose, wait for it until it reachs the desired position
@@ -81,10 +79,10 @@ class MotionPrimitiveExecutor:
         self._move_hand(hover, attached_object=block)
         print("Lifted block")
 
-        # print qpos history to file
-        with open("qpos_history.txt", "w") as f:
-            for qpos in self.qpos_history:
-                f.write(", ".join(f"{v:.6f}" for v in qpos) + "\n")
+        # # print qpos history to file
+        # with open("qpos_history.txt", "w") as f:
+        #     for qpos in self.qpos_history:
+        #         f.write(", ".join(f"{v:.6f}" for v in qpos) + "\n")
 
     def putdown(self, block_name: str, target_xy: Optional[Sequence[float]] = None) -> None:
         if self.held_block != block_name:
@@ -100,6 +98,7 @@ class MotionPrimitiveExecutor:
         self._move_hand(hover, attached_object=block_entity)
         self._move_hand(place, attached_object=block_entity)
         self._open_gripper()
+        self.gripper_closed = False
         self.held_block = None
         self._move_hand(hover)
 
@@ -113,9 +112,16 @@ class MotionPrimitiveExecutor:
         hover = place + np.array([0.0, 0.0, self.config.hover_height])
         block_entity = self.blocks_state[top_block]
 
+        # print bottom block position
+        print(f"Bottom block '{bottom_block}' position: {support.get_pos()}")
+        # print target hover and place positions
+        print(f"Hover position for stacking: {hover}")
+        print(f"Place position for stacking: {place}")
+
         self._move_hand(hover, attached_object=block_entity)
         self._move_hand(place, attached_object=block_entity)
         self._open_gripper()
+        self.gripper_closed = False
         self.held_block = None
         self._move_hand(hover)
 
@@ -173,6 +179,12 @@ class MotionPrimitiveExecutor:
             attached_object=attached_object,
         )
         waypoints = self._normalize_waypoints(path)
+
+        # dump waypoints to a file for debugging
+        with open("planned_path.txt", "w") as f:
+            for waypoint in waypoints:
+                f.write(", ".join(f"{v:.6f}" for v in tensor_to_array(waypoint)) + "\n")  
+
         if not waypoints:
             raise MotionPrimitiveError("Motion planner failed to find a path.")
         self._execute_path(waypoints)
