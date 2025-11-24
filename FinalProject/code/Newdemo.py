@@ -36,22 +36,22 @@ franka.set_dofs_force_range(
 )
 
 # move to a fixed pre-grasp pose
-qpos = franka.inverse_kinematics(
-    link=franka.get_link("hand"),
-    pos=np.array([0.65, 0.0, 0.25]),
-    quat=np.array([0, 1, 0, 0]),
-)
-# gripper open pos
-qpos[-2:] = 0.04
-path = franka.plan_path(
-    qpos_goal=qpos,
-    num_waypoints=200,  # 2s duration
-)
+# qpos = franka.inverse_kinematics(
+#     link=franka.get_link("hand"),
+#     pos=np.array([0.65, 0.0, 0.25]),
+#     quat=np.array([0, 1, 0, 0]),
+# )
+# # gripper open pos
+# qpos[-2:] = 0.04
+# path = franka.plan_path(
+#     qpos_goal=qpos,
+#     num_waypoints=200,  # 2s duration
+# )
 
-# execute the planned path
-for waypoint in path:
-    franka.control_dofs_position(waypoint)
-    scene.step()
+# # execute the planned path
+# for waypoint in path:
+#     franka.control_dofs_position(waypoint)
+#     scene.step()
 
 predicates = lift_scene(franka, BlocksState)
 for atom in predicates.as_pddl_atoms():

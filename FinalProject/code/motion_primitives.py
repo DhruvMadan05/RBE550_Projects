@@ -19,6 +19,8 @@ import torch
 
 from genesis.utils.misc import tensor_to_array
 
+import matplotlib.pyplot as plt
+
 
 DEFAULT_HAND_QUAT = np.array([0.0, 1.0, 0.0, 0.0])
 
@@ -33,11 +35,12 @@ class PrimitiveConfig:
     grasp_clearance: float = 0.1
     lift_height: float = 0.20
     gripper_opening: float = 0.04
-    gripper_closed: float = 0.00
+    gripper_closed: float = 0.0
     motion_waypoints: int = 200
     settle_tolerance: float = 1e-3
     settle_timeout: float = 1.0
     gripper_steps: int = 60
+    squeeze_force: float = 20.0
 
 class MotionPrimitiveExecutor:
     """Executes pick/place/stack/unstack primitives via OMPL plans."""
@@ -49,6 +52,8 @@ class MotionPrimitiveExecutor:
         self.config = config or PrimitiveConfig()
         self.hand_link = self.robot.get_link("hand")
         self.held_block: Optional[str] = None
+        self.qpos_history = []
+        self.gripper_closed = False
 
     # ------------------------------------------------------------------ public API
     def pick(self, block_name: str) -> None:
@@ -68,13 +73,18 @@ class MotionPrimitiveExecutor:
         # While the gripper is not at the grasp pose, wait for it until it reachs the desired position
         
         self._move_hand(grasp)
-
         print("Moved to grasp pose")
         self._close_gripper()
+        self.gripper_closed = True
         print("Gripper Closed")
         self.held_block = block_name
         self._move_hand(hover, attached_object=block)
         print("Lifted block")
+
+        # print qpos history to file
+        with open("qpos_history.txt", "w") as f:
+            for qpos in self.qpos_history:
+                f.write(", ".join(f"{v:.6f}" for v in qpos) + "\n")
 
     def putdown(self, block_name: str, target_xy: Optional[Sequence[float]] = None) -> None:
         if self.held_block != block_name:
@@ -145,13 +155,18 @@ class MotionPrimitiveExecutor:
             pos=pos,
             quat=quat,
         )
-        current = self._current_qpos()
-        if isinstance(qpos_goal, torch.Tensor):
-            qpos_goal = qpos_goal.clone()
-            qpos_goal[-2:] = torch.as_tensor(current[-2:], dtype=qpos_goal.dtype, device=qpos_goal.device)
+        # current = self._current_qpos()
+        # if isinstance(qpos_goal, torch.Tensor):
+        #     qpos_goal = qpos_goal.clone()
+        #     qpos_goal[-2:] = torch.as_tensor(current[-2:], dtype=qpos_goal.dtype, device=qpos_goal.device)
+
+        # else:
+        # qpos_goal = np.asarray(qpos_goal, dtype=float)
+        if self.gripper_closed:
+            qpos_goal[-2:] = self.config.gripper_closed
         else:
-            qpos_goal = np.asarray(qpos_goal, dtype=float)
-            qpos_goal[-2:] = current[-2:]
+            qpos_goal[-2:] = self.config.gripper_opening
+
         path = self.robot.plan_path(
             qpos_goal=qpos_goal,
             num_waypoints=self.config.motion_waypoints,
@@ -165,7 +180,14 @@ class MotionPrimitiveExecutor:
 
     def _execute_path(self, path: Iterable) -> None:
         for waypoint in path:
+            # for each waypoint tensor, set the gripper position to closed or opened based on current state
+            if self.gripper_closed:
+                waypoint[-2:] = self.config.gripper_closed
+            else:
+                waypoint[-2:] = self.config.gripper_opening
+
             self.robot.control_dofs_position(waypoint)
+            self._record_qpos()
             self.scene.step()
 
     def _open_gripper(self) -> None:
@@ -187,6 +209,7 @@ class MotionPrimitiveExecutor:
         for waypoint in path:
             self.robot.control_dofs_position(waypoint)
             self.scene.step()
+            self._record_qpos()
         self._wait_until_qpos(target)
 
     def _current_qpos(self) -> np.ndarray:
@@ -223,3 +246,18 @@ class MotionPrimitiveExecutor:
             if np.linalg.norm(cur - target) <= self.config.settle_tolerance:
                 break
             self.scene.step()
+    
+    def _record_qpos(self):
+        self.qpos_history.append(self._current_qpos().copy())
+
+    def _squeeze_gripper(self, force_newtons=5.0):
+        # torque = np.zeros_like(self._current_qpos())
+        # torque[-2:] = -abs(force_newtons)   # negative closes the fingers on the Panda
+        # self.robot.control_dofs_force(torque)
+
+        finger_force = np.array([-abs(force_newtons), -abs(force_newtons)], dtype=float)
+        self.robot.control_dofs_force(
+            finger_force,
+            dofs_idx=[self.robot.n_qs - 2, self.robot.n_qs - 1],
+        )
+
