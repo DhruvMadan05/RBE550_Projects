@@ -17,6 +17,8 @@ from typing import Dict, Iterable, Optional, Sequence
 import numpy as np
 import torch
 
+from planning import PlannerInterface
+
 from genesis.utils.misc import tensor_to_array
 
 import matplotlib.pyplot as plt
@@ -32,10 +34,10 @@ class MotionPrimitiveError(RuntimeError):
 @dataclass
 class PrimitiveConfig:
     hover_height: float = 0.20
-    grasp_clearance: float = 0.08
+    grasp_clearance: float = 0.1
     lift_height: float = 0.20
     gripper_opening: float = 0.04
-    gripper_closed: float = 0.0
+    gripper_closed: float = 0.00
     motion_waypoints: int = 200
     settle_tolerance: float = 1e-3
     settle_timeout: float = 1.0
@@ -54,6 +56,8 @@ class MotionPrimitiveExecutor:
         self.held_block: Optional[str] = None
         self.qpos_history = []
         self.gripper_closed = False
+
+        self.planner = PlannerInterface(self.robot, self.scene)
 
     # ------------------------------------------------------------------ public API
     def pick(self, block_name: str) -> None:
@@ -161,6 +165,10 @@ class MotionPrimitiveExecutor:
             pos=pos,
             quat=quat,
         )
+
+        print("Planning path to:")
+        print(qpos_goal)
+
         # current = self._current_qpos()
         # if isinstance(qpos_goal, torch.Tensor):
         #     qpos_goal = qpos_goal.clone()
@@ -179,6 +187,17 @@ class MotionPrimitiveExecutor:
             attached_object=attached_object,
         )
         waypoints = self._normalize_waypoints(path)
+
+        # check that waypoints is not just all zeros
+        
+        while all(np.allclose(tensor_to_array(wp), 0.0) for wp in waypoints):
+            print("Received all-zero waypoints, replanning...")
+            path = self.robot.plan_path(
+                qpos_goal=qpos_goal,
+                num_waypoints=self.config.motion_waypoints,
+                attached_object=attached_object,
+            )
+            waypoints = self._normalize_waypoints(path)
 
         # dump waypoints to a file for debugging
         with open("planned_path.txt", "w") as f:
