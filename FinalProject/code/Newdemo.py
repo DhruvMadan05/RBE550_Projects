@@ -1,8 +1,11 @@
+from ast import parse
 import sys
 import numpy as np
 import genesis as gs
 from scenes import create_scene_6blocks, create_scene_stacked
 from symbolic import lift_scene
+
+from motion_primitives import MotionPrimitiveError, MotionPrimitiveExecutor
 
 from task_planner import plan_blocksworld, goal_two_towers
 
@@ -44,6 +47,7 @@ path = franka.plan_path(
     qpos_goal=qpos,
     num_waypoints=200,  # 2s duration
 )
+
 # execute the planned path
 for waypoint in path:
     franka.control_dofs_position(waypoint)
@@ -55,6 +59,53 @@ for atom in predicates.as_pddl_atoms():
 
 goal = goal_two_towers()
 actions = plan_blocksworld(predicates, goal)
-print("Planned actions:")
-for action in actions:
+# print("Planned actions:")
+# for action in actions:
+#     print(action)
+
+# Print all block loactions
+for block_name, block_entity in BlocksState.items():
+    print(f"Block {block_name} position: {block_entity.get_pos()}")
+
+executor = MotionPrimitiveExecutor(scene, franka, BlocksState)
+# executor.pick("r")
+# executor.stack("r", "g")  # assumes you’re holding r
+
+def execute_action(action, executor, sym):
+    name, args = parse_action(action)
+    if name == "pick-up":
+        try:
+            executor.pick(args[0])
+            return True
+        except MotionPrimitiveError as exc:
+            print(exc)
+            return False
+    # handle put-down, stack, unstack similarly
+
+def parse_action(atom: str):
+    atom = atom.strip().lstrip("(").rstrip(")")
+    parts = atom.split()
+    name = parts[0]
+    args = parts[1:]
+    return name, args
+
+sym = lift_scene(franka, BlocksState)
+for atom in sym.as_pddl_atoms():
+    print(atom)
+plan = plan_blocksworld(sym, goal_two_towers())
+for action in plan:
     print(action)
+if not plan:
+    print("No plan found");
+action = plan[0]
+success = execute_action(action, executor, sym)
+if not success:
+    print("Primitive failed, re-planning…")
+# after each primitive the loop reiterates, re-lifts, and re-plans
+
+import time
+while True:
+    scene.step()
+    time.sleep(0.01)   # ~100 Hz viewer updates
+
+

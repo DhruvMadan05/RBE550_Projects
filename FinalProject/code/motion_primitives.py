@@ -1,0 +1,225 @@
+"""Motion primitives that ground high-level Blocksworld actions.
+
+Each primitive follows a simple template:
+1. Compute end-effector poses using IK (top-down grasps).
+2. Use the OMPL-based planner to reach those poses collision-free.
+3. Execute the trajectory and actuate the gripper.
+
+The primitives are intentionally conservative (top-down only) but provide a
+baseline that you can refine with better grasp synthesis or control.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+import time
+from typing import Dict, Iterable, Optional, Sequence
+
+import numpy as np
+import torch
+
+from genesis.utils.misc import tensor_to_array
+
+
+DEFAULT_HAND_QUAT = np.array([0.0, 1.0, 0.0, 0.0])
+
+
+class MotionPrimitiveError(RuntimeError):
+    """Raised when a primitive cannot be completed."""
+
+
+@dataclass
+class PrimitiveConfig:
+    hover_height: float = 0.20
+    grasp_clearance: float = 0.1
+    lift_height: float = 0.20
+    gripper_opening: float = 0.04
+    gripper_closed: float = 0.00
+    motion_waypoints: int = 200
+    settle_tolerance: float = 1e-3
+    settle_timeout: float = 1.0
+    gripper_steps: int = 60
+
+class MotionPrimitiveExecutor:
+    """Executes pick/place/stack/unstack primitives via OMPL plans."""
+
+    def __init__(self, scene, franka, blocks_state: Dict[str, any], config: PrimitiveConfig | None = None):
+        self.scene = scene
+        self.robot = franka
+        self.blocks_state = blocks_state
+        self.config = config or PrimitiveConfig()
+        self.hand_link = self.robot.get_link("hand")
+        self.held_block: Optional[str] = None
+
+    # ------------------------------------------------------------------ public API
+    def pick(self, block_name: str) -> None:
+        block = self._require_block(block_name)
+        self._open_gripper()
+
+        print("Current Pos")
+        print(self._current_qpos())
+
+        print("Gripper Opened")
+        hover = self._hover_pose(block)
+        grasp = self._grasp_pose(block)
+        print(f"Hover pose: {hover}")
+        print(f"Grasp pose: {grasp}")
+        self._move_hand(hover)
+        print("Moved to hover pose")
+        # While the gripper is not at the grasp pose, wait for it until it reachs the desired position
+        
+        self._move_hand(grasp)
+
+        print("Moved to grasp pose")
+        self._close_gripper()
+        print("Gripper Closed")
+        self.held_block = block_name
+        self._move_hand(hover, attached_object=block)
+        print("Lifted block")
+
+    def putdown(self, block_name: str, target_xy: Optional[Sequence[float]] = None) -> None:
+        if self.held_block != block_name:
+            raise MotionPrimitiveError(f"Robot is not holding {block_name}")
+        target_pos = np.array(self.blocks_state[block_name].get_pos(), dtype=float)
+        if target_xy is not None:
+            target_pos[0] = target_xy[0]
+            target_pos[1] = target_xy[1]
+        place = self._place_pose_on_table(target_pos)
+        hover = place + np.array([0.0, 0.0, self.config.hover_height])
+        block_entity = self.blocks_state[block_name]
+
+        self._move_hand(hover, attached_object=block_entity)
+        self._move_hand(place, attached_object=block_entity)
+        self._open_gripper()
+        self.held_block = None
+        self._move_hand(hover)
+
+    def stack(self, top_block: str, bottom_block: str) -> None:
+        if self.held_block != top_block:
+            raise MotionPrimitiveError(f"Robot must hold {top_block} before stacking.")
+        support = self._require_block(bottom_block)
+        target = np.array(support.get_pos(), dtype=float)
+        target[2] += self._block_height()
+        place = self._place_pose_top(target)
+        hover = place + np.array([0.0, 0.0, self.config.hover_height])
+        block_entity = self.blocks_state[top_block]
+
+        self._move_hand(hover, attached_object=block_entity)
+        self._move_hand(place, attached_object=block_entity)
+        self._open_gripper()
+        self.held_block = None
+        self._move_hand(hover)
+
+    def unstack(self, top_block: str, bottom_block: str) -> None:
+        block = self._require_block(top_block)
+        # same as pick but we expect ON relation already satisfied
+        self.pick(top_block)
+
+    # ------------------------------------------------------------------ helpers
+    def _hover_pose(self, block_entity) -> np.ndarray:
+        pos = np.array(block_entity.get_pos(), dtype=float)
+        hover = pos.copy()
+        hover[2] = pos[2] + self.config.hover_height
+        print(f"Hover pose: {hover}")
+        return hover
+
+    def _grasp_pose(self, block_entity) -> np.ndarray:
+        pos = np.array(block_entity.get_pos(), dtype=float)
+        grasp = pos.copy()
+        grasp[2] = pos[2] + (self._block_height() / 2.0) + self.config.grasp_clearance
+        return grasp
+
+    def _place_pose_on_table(self, target_pos: np.ndarray) -> np.ndarray:
+        place = target_pos.copy()
+        place[2] = self._block_height() / 2.0 + self.config.grasp_clearance
+        return place
+
+    def _place_pose_top(self, target_pos: np.ndarray) -> np.ndarray:
+        place = target_pos.copy()
+        place[2] += (self._block_height() / 2.0) + self.config.grasp_clearance
+        return place
+
+    def _move_hand(self, pos: np.ndarray, quat: Optional[np.ndarray] = None, attached_object=None) -> None:
+        quat = quat if quat is not None else DEFAULT_HAND_QUAT
+        qpos_goal = self.robot.inverse_kinematics(
+            link=self.hand_link,
+            pos=pos,
+            quat=quat,
+        )
+        current = self._current_qpos()
+        if isinstance(qpos_goal, torch.Tensor):
+            qpos_goal = qpos_goal.clone()
+            qpos_goal[-2:] = torch.as_tensor(current[-2:], dtype=qpos_goal.dtype, device=qpos_goal.device)
+        else:
+            qpos_goal = np.asarray(qpos_goal, dtype=float)
+            qpos_goal[-2:] = current[-2:]
+        path = self.robot.plan_path(
+            qpos_goal=qpos_goal,
+            num_waypoints=self.config.motion_waypoints,
+            attached_object=attached_object,
+        )
+        waypoints = self._normalize_waypoints(path)
+        if not waypoints:
+            raise MotionPrimitiveError("Motion planner failed to find a path.")
+        self._execute_path(waypoints)
+        self._wait_until_qpos(qpos_goal)
+
+    def _execute_path(self, path: Iterable) -> None:
+        for waypoint in path:
+            self.robot.control_dofs_position(waypoint)
+            self.scene.step()
+
+    def _open_gripper(self) -> None:
+        self._set_gripper(self.config.gripper_opening)
+
+    def _close_gripper(self) -> None:
+        self._set_gripper(self.config.gripper_closed)
+
+    def _set_gripper(self, value: float) -> None:
+        current = self._current_qpos()
+        target = current.copy()
+        target[-2:] = value
+        #steps = max(1, self.config.gripper_steps)
+        path = self.robot.plan_path(
+            qpos_goal=target,
+            num_waypoints=self.config.gripper_steps,
+        )
+        # execute the planned path
+        for waypoint in path:
+            self.robot.control_dofs_position(waypoint)
+            self.scene.step()
+        self._wait_until_qpos(target)
+
+    def _current_qpos(self) -> np.ndarray:
+        qpos = self.robot.get_qpos()
+        if hasattr(qpos, "detach"):
+            return tensor_to_array(qpos)
+        return np.asarray(qpos, dtype=float)
+
+    def _require_block(self, name: str):
+        if name not in self.blocks_state:
+            raise MotionPrimitiveError(f"Unknown block '{name}'")
+        return self.blocks_state[name]
+
+    def _block_height(self) -> float:
+        # assumes cubes (size pulled from scenes.py)
+        return 0.04
+
+    def _normalize_waypoints(self, path) -> list:
+        """Ensure we always iterate over a list of tensors."""
+        if path is None:
+            return []
+        if isinstance(path, torch.Tensor):
+            if path.ndim <= 1:
+                return [path]
+            return [path[i] for i in range(path.shape[0])]
+        return list(path)
+
+    def _wait_until_qpos(self, target_qpos) -> None:
+        """Wait until the joints settle near the final configuration."""
+        target = tensor_to_array(target_qpos)
+        deadline = time.time() + self.config.settle_timeout
+        while time.time() < deadline:
+            cur = self._current_qpos()
+            if np.linalg.norm(cur - target) <= self.config.settle_tolerance:
+                break
+            self.scene.step()
