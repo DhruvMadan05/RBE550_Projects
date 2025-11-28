@@ -33,7 +33,7 @@ class MotionPrimitiveError(RuntimeError):
 
 @dataclass
 class PrimitiveConfig:
-    hover_height: float = 0.20
+    hover_height: float = 0.10
     grasp_clearance: float = 0.1
     lift_height: float = 0.20
     gripper_opening: float = 0.04
@@ -185,6 +185,7 @@ class MotionPrimitiveExecutor:
             qpos_goal=qpos_goal,
             num_waypoints=self.config.motion_waypoints,
             attached_object=attached_object,
+            planner="RRT",
         )
         waypoints = self._normalize_waypoints(path)
 
