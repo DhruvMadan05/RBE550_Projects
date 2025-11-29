@@ -141,7 +141,6 @@ for action in plan:
 
 # loop through actions
 while plan is not None and len(plan) > 0:
-    print(gs.logger)
     print("\nExecuting next action:")
     print(plan[0])
     action = plan[0]

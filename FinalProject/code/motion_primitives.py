@@ -33,10 +33,10 @@ class MotionPrimitiveError(RuntimeError):
 
 @dataclass
 class PrimitiveConfig:
-    hover_height: float = 0.20
-    grasp_clearance: float = 0.02
-    gripper_opening: float = 0.04
-    gripper_closed: float = 0.01
+    hover_height: float = 0.20 # Height above the block the gripper will hover at
+    grasp_clearance: float = 0.1 # addition clearance above the block for grasping
+    gripper_opening: float = 0.037 # gripper open position
+    gripper_closed: float = 0.01 # gripper closed position
     motion_waypoints: int = 200
     settle_tolerance: float = 1e-3
     settle_timeout: float = 1.0
@@ -74,15 +74,18 @@ class MotionPrimitiveExecutor:
         
         self._move_hand(grasp)
         print("Moved to grasp pose")
-        self.pause()
 
+        self.pause()
 
         self._close_gripper()
         self.gripper_closed = True
         print("Gripper Closed")
+
         self.held_block = block_name
         self._move_hand(hover, attached_object=block)
         print("Lifted block")
+
+        
 
         # # print qpos history to file
         # with open("qpos_history.txt", "w") as f:
@@ -169,6 +172,9 @@ class MotionPrimitiveExecutor:
 
         print("Planning path to:")
         print(qpos_goal)
+        # print position in world coordinates
+        print("Target world position:")
+        print(pos)
 
         # current = self._current_qpos()
         # if isinstance(qpos_goal, torch.Tensor):
@@ -182,6 +188,15 @@ class MotionPrimitiveExecutor:
         else:
             qpos_goal[-2:] = self.config.gripper_opening
 
+
+        # make sure values are clamped before calling plan path
+
+        # clamp the qpos_goal within robot limits
+        q_lower = np.asarray(self.robot.q_limit[0], dtype=float)
+        q_upper = np.asarray(self.robot.q_limit[1], dtype=float)
+
+        qpos_goal = np.clip(qpos_goal, q_lower, q_upper)
+
         path = self.planner.plan_path(
             qpos_goal=qpos_goal,
             num_waypoints=self.config.motion_waypoints,
@@ -191,14 +206,14 @@ class MotionPrimitiveExecutor:
 
         # check that waypoints is not just all zeros
         
-        while all(np.allclose(tensor_to_array(wp), 0.0) for wp in waypoints):
-            print("Received all-zero waypoints, replanning...")
-            path = self.robot.plan_path(
-                qpos_goal=qpos_goal,
-                num_waypoints=self.config.motion_waypoints,
-                attached_object=attached_object,
-            )
-            waypoints = self._normalize_waypoints(path)
+        # while all(np.allclose(tensor_to_array(wp), 0.0) for wp in waypoints):
+        #     print("Received all-zero waypoints, replanning...")
+        #     path = self.planner.plan_path(
+        #         qpos_goal=qpos_goal,
+        #         num_waypoints=self.config.motion_waypoints,
+        #         attached_object=attached_object,
+        #     )
+        #     waypoints = self._normalize_waypoints(path)
 
         # dump waypoints to a file for debugging
         with open("planned_path.txt", "w") as f:
