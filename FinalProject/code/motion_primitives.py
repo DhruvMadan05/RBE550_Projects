@@ -33,11 +33,10 @@ class MotionPrimitiveError(RuntimeError):
 
 @dataclass
 class PrimitiveConfig:
-    hover_height: float = 0.10
-    grasp_clearance: float = 0.1
-    lift_height: float = 0.20
+    hover_height: float = 0.20
+    grasp_clearance: float = 0.02
     gripper_opening: float = 0.04
-    gripper_closed: float = 0.00
+    gripper_closed: float = 0.01
     motion_waypoints: int = 200
     settle_tolerance: float = 1e-3
     settle_timeout: float = 1.0
@@ -66,7 +65,6 @@ class MotionPrimitiveExecutor:
 
         print("Current Pos")
         print(self._current_qpos())
-
         print("Gripper Opened")
         hover = self._hover_pose(block)
         grasp = self._grasp_pose(block)
@@ -76,6 +74,9 @@ class MotionPrimitiveExecutor:
         
         self._move_hand(grasp)
         print("Moved to grasp pose")
+        self.pause()
+
+
         self._close_gripper()
         self.gripper_closed = True
         print("Gripper Closed")
@@ -181,11 +182,10 @@ class MotionPrimitiveExecutor:
         else:
             qpos_goal[-2:] = self.config.gripper_opening
 
-        path = self.robot.plan_path(
+        path = self.planner.plan_path(
             qpos_goal=qpos_goal,
             num_waypoints=self.config.motion_waypoints,
             attached_object=attached_object,
-            planner="RRT",
         )
         waypoints = self._normalize_waypoints(path)
 
@@ -293,3 +293,8 @@ class MotionPrimitiveExecutor:
             dofs_idx=[self.robot.n_qs - 2, self.robot.n_qs - 1],
         )
 
+    def pause(self):
+        while True:
+            self.scene.step()
+            time.sleep(0.01)   # ~100 Hz viewer updates
+        
