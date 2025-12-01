@@ -71,7 +71,17 @@ def goal_two_towers(
     return _dedupe_preserve_order(atoms)
 
 
-def goal_single_tower(order: Sequence[str]) -> List[str]:
+def goal_single_tower(
+        order: Sequence[str] = ("m", "y", "b", "r", "g"),
+) -> List[str]:
+    """Build goal atoms for a single tower whose order is specified top-down."""
+    atoms = _tower_goal_atoms(order)
+    atoms.append("(handempty)")
+    return _dedupe_preserve_order(atoms)
+
+def goal_tall_tower(
+        order: Sequence[str] = ("c", "m", "y", "b", "r", "g"),
+) -> List[str]:
     """Build goal atoms for a single tower whose order is specified top-down."""
     atoms = _tower_goal_atoms(order)
     atoms.append("(handempty)")

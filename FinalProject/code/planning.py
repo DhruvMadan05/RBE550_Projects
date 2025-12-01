@@ -217,7 +217,7 @@ class PlannerInterface:
         return self.collision_with_attached_object(collision_pairs)
 
     def collision_with_attached_object(self, collision_pairs):
-        finger_names = {"left_finger", "right_finger", "hand"}
+        finger_names = {"left_finger", "right_finger", "hand", "link6", "link7", "link8"}
         for a, b in collision_pairs:
             name_a = self.scene.rigid_solver.geoms[a].link.name
             name_b = self.scene.rigid_solver.geoms[b].link.name

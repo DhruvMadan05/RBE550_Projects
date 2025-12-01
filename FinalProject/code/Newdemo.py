@@ -7,7 +7,7 @@ from symbolic import lift_scene
 
 from motion_primitives import MotionPrimitiveError, MotionPrimitiveExecutor
 
-from task_planner import plan_blocksworld, goal_two_towers
+from task_planner import plan_blocksworld, goal_two_towers, goal_single_tower, goal_tall_tower
 
 # Ensure Genesis is initialized before building scenes
 if len(sys.argv) > 1 and sys.argv[1] == "gpu":
@@ -16,8 +16,8 @@ else:
     gs.init(backend=gs.cpu, logging_level='Warning', logger_verbose_time=False)
 
 # build the scene using the factory
-scene, franka, BlocksState = create_scene_6blocks()
-#scene, franka, BlocksState = create_scene_stacked()
+#scene, franka, BlocksState = create_scene_6blocks()
+scene, franka, BlocksState = create_scene_stacked()
 
 # set control gains
 # Note: the following values are tuned for achieving best behavior with Franka
@@ -136,11 +136,19 @@ if not plan:
 print("\n")
 sym = lift_scene(franka, BlocksState)
 plan = plan_blocksworld(sym, goal_two_towers())
+# plan = plan_blocksworld(sym, goal_single_tower())
+#plan = plan_blocksworld(sym, goal_tall_tower())
+
 for action in plan:
     print(action)
 
 # loop through actions
 while plan is not None and len(plan) > 0:
+    # print current scene predicates
+    print("\nCurrent scene predicates:")
+    sym = lift_scene(franka, BlocksState)
+    for atom in sym.as_pddl_atoms():
+        print(atom)
     print("\nExecuting next action:")
     print(plan[0])
     action = plan[0]
@@ -149,10 +157,15 @@ while plan is not None and len(plan) > 0:
         print("Primitive failed, re-planning…")
         sym = lift_scene(franka, BlocksState)
         plan = plan_blocksworld(sym, goal_two_towers())
+        #plan = plan_blocksworld(sym, goal_single_tower())
+        #plan = plan_blocksworld(sym, goal_tall_tower())
+
     else:
         # action succeeded, move to next action
         sym = lift_scene(franka, BlocksState)
         plan = plan_blocksworld(sym, goal_two_towers())
+        #plan = plan_blocksworld(sym, goal_single_tower())
+        #plan = plan_blocksworld(sym, goal_tall_tower())
 
 import time
 while True:

@@ -33,9 +33,11 @@ class MotionPrimitiveError(RuntimeError):
 
 @dataclass
 class PrimitiveConfig:
-    hover_height: float = 0.20 # Height above the block the gripper will hover at
+    hover_height: float = 0.2 # Height above the block the gripper will hover at
+    hover_height_stacking: float = 0.1 # Height above the top block when stacking
     grasp_clearance: float = 0.1 # addition clearance above the block for grasping
-    gripper_opening: float = 0.037 # gripper open position
+    grasp_x_offset: float = 0.01 # offset in x direction for grasping
+    gripper_opening: float = 0.039 # gripper open position
     gripper_closed: float = 0.01 # gripper closed position
     motion_waypoints: int = 200
     settle_tolerance: float = 1e-3
@@ -75,17 +77,18 @@ class MotionPrimitiveExecutor:
         self._move_hand(grasp)
         print("Moved to grasp pose")
 
-        self.pause()
-
-        self._close_gripper()
+        
+        self.held_block = block_name
+        self._close_gripper(attached_object=block)
         self.gripper_closed = True
         print("Gripper Closed")
 
-        self.held_block = block_name
+        print("current robot pos in world coordinates:")
+        hand_pos = np.asarray(self.hand_link.get_pos(), dtype=float)
+        print(hand_pos)
+        
         self._move_hand(hover, attached_object=block)
         print("Lifted block")
-
-        
 
         # # print qpos history to file
         # with open("qpos_history.txt", "w") as f:
@@ -99,7 +102,10 @@ class MotionPrimitiveExecutor:
         if target_xy is not None:
             target_pos[0] = target_xy[0]
             target_pos[1] = target_xy[1]
+
         place = self._place_pose_on_table(target_pos)
+
+
         hover = place + np.array([0.0, 0.0, self.config.hover_height])
         block_entity = self.blocks_state[block_name]
 
@@ -117,7 +123,7 @@ class MotionPrimitiveExecutor:
         target = np.array(support.get_pos(), dtype=float)
         target[2] += self._block_height()
         place = self._place_pose_top(target)
-        hover = place + np.array([0.0, 0.0, self.config.hover_height])
+        hover = place + np.array([0.0, 0.0, self.config.hover_height_stacking])
         block_entity = self.blocks_state[top_block]
 
         # print bottom block position
@@ -127,8 +133,9 @@ class MotionPrimitiveExecutor:
         print(f"Place position for stacking: {place}")
 
         self._move_hand(hover, attached_object=block_entity)
+        
         self._move_hand(place, attached_object=block_entity)
-        self._open_gripper()
+        self._open_gripper(attached_object=block_entity)
         self.gripper_closed = False
         self.held_block = None
         self._move_hand(hover)
@@ -143,6 +150,7 @@ class MotionPrimitiveExecutor:
         pos = np.array(block_entity.get_pos(), dtype=float)
         hover = pos.copy()
         hover[2] = pos[2] + self.config.hover_height
+        hover[0] += self.config.grasp_x_offset  # offset in x direction for better hovering
         print(f"Hover pose: {hover}")
         return hover
 
@@ -150,16 +158,51 @@ class MotionPrimitiveExecutor:
         pos = np.array(block_entity.get_pos(), dtype=float)
         grasp = pos.copy()
         grasp[2] = pos[2] + (self._block_height() / 2.0) + self.config.grasp_clearance
+        grasp[0] += self.config.grasp_x_offset  # offset in x direction for better grasping
+        print(f"Grasp pose: {grasp}")
         return grasp
 
     def _place_pose_on_table(self, target_pos: np.ndarray) -> np.ndarray:
         place = target_pos.copy()
         place[2] = self._block_height() / 2.0 + self.config.grasp_clearance
+
+        # set 6 different locations in the area for placing the block. Check if any other block is already there
+        # if so pick a different one of the locations to place the block
+        # predefined locations (x, y offsets)
+        offsets = [(0.65, 0.0), (0.65, 0.2), (0.65, 0.4), (0.45, 0.0), (0.45, 0.2), (0.45, 0.4)]
+        occupied_positions = []
+        for bname, bentity in self.blocks_state.items():
+            if bname != self.held_block:
+                # Ensure positions are numpy arrays (convert from torch.Tensor if needed)
+                bpos = bentity.get_pos()
+                try:
+                    bpos = tensor_to_array(bpos)
+                except Exception:
+                    bpos = np.asarray(bpos, dtype=float)
+                occupied_positions.append(np.asarray(bpos[:2], dtype=float))
+        
+        for offset in offsets:
+            candidate_pos = target_pos.copy()
+            candidate_pos[0] = offset[0]
+            candidate_pos[1] = offset[1]
+            # check if candidate pos is occupied
+            is_occupied = False
+            for occ in occupied_positions:
+                if np.linalg.norm(candidate_pos[:2] - occ) < 0.075:  # 7.5 cm threshold
+                    is_occupied = True
+                    break
+            if not is_occupied:
+                place[0] = candidate_pos[0]
+                place[1] = candidate_pos[1]
+                break
+
         return place
 
     def _place_pose_top(self, target_pos: np.ndarray) -> np.ndarray:
         place = target_pos.copy()
         place[2] += (self._block_height() / 2.0) + self.config.grasp_clearance
+        place[0] += 0.005  # offset in x direction for better placing
+        place[1] += 0.002
         return place
 
     def _move_hand(self, pos: np.ndarray, quat: Optional[np.ndarray] = None, attached_object=None) -> None:
@@ -237,20 +280,21 @@ class MotionPrimitiveExecutor:
             self._record_qpos()
             self.scene.step()
 
-    def _open_gripper(self) -> None:
-        self._set_gripper(self.config.gripper_opening)
+    def _open_gripper(self, attached_object=None) -> None:
+        self._set_gripper(self.config.gripper_opening, attached_object=attached_object)
 
-    def _close_gripper(self) -> None:
-        self._set_gripper(self.config.gripper_closed)
+    def _close_gripper(self, attached_object=None) -> None:
+        self._set_gripper(self.config.gripper_closed, attached_object=attached_object)
 
-    def _set_gripper(self, value: float) -> None:
+    def _set_gripper(self, value: float, attached_object=None) -> None:
         current = self._current_qpos()
         target = current.copy()
         target[-2:] = value
         #steps = max(1, self.config.gripper_steps)
-        path = self.robot.plan_path(
+        path = self.planner.plan_path(
             qpos_goal=target,
             num_waypoints=self.config.gripper_steps,
+            attached_object=attached_object
         )
         # execute the planned path
         for waypoint in path:
