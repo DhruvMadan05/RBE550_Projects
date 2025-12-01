@@ -135,8 +135,8 @@ if not plan:
     
 print("\n")
 sym = lift_scene(franka, BlocksState)
-plan = plan_blocksworld(sym, goal_two_towers())
-# plan = plan_blocksworld(sym, goal_single_tower())
+#plan = plan_blocksworld(sym, goal_two_towers())
+plan = plan_blocksworld(sym, goal_single_tower())
 #plan = plan_blocksworld(sym, goal_tall_tower())
 
 for action in plan:
@@ -156,15 +156,15 @@ while plan is not None and len(plan) > 0:
     if not success:
         print("Primitive failed, re-planning…")
         sym = lift_scene(franka, BlocksState)
-        plan = plan_blocksworld(sym, goal_two_towers())
-        #plan = plan_blocksworld(sym, goal_single_tower())
+        #plan = plan_blocksworld(sym, goal_two_towers())
+        plan = plan_blocksworld(sym, goal_single_tower())
         #plan = plan_blocksworld(sym, goal_tall_tower())
 
     else:
         # action succeeded, move to next action
         sym = lift_scene(franka, BlocksState)
-        plan = plan_blocksworld(sym, goal_two_towers())
-        #plan = plan_blocksworld(sym, goal_single_tower())
+        #plan = plan_blocksworld(sym, goal_two_towers())
+        plan = plan_blocksworld(sym, goal_single_tower())
         #plan = plan_blocksworld(sym, goal_tall_tower())
 
 import time

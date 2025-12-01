@@ -105,13 +105,12 @@ class MotionPrimitiveExecutor:
 
         place = self._place_pose_on_table(target_pos)
 
-
         hover = place + np.array([0.0, 0.0, self.config.hover_height])
         block_entity = self.blocks_state[block_name]
 
         self._move_hand(hover, attached_object=block_entity)
         self._move_hand(place, attached_object=block_entity)
-        self._open_gripper()
+        self._open_gripper(attached_object=block_entity)
         self.gripper_closed = False
         self.held_block = None
         self._move_hand(hover)
@@ -164,7 +163,7 @@ class MotionPrimitiveExecutor:
 
     def _place_pose_on_table(self, target_pos: np.ndarray) -> np.ndarray:
         place = target_pos.copy()
-        place[2] = self._block_height() / 2.0 + self.config.grasp_clearance
+        place[2] = self._block_height() + self.config.grasp_clearance
 
         # set 6 different locations in the area for placing the block. Check if any other block is already there
         # if so pick a different one of the locations to place the block
@@ -188,7 +187,7 @@ class MotionPrimitiveExecutor:
             # check if candidate pos is occupied
             is_occupied = False
             for occ in occupied_positions:
-                if np.linalg.norm(candidate_pos[:2] - occ) < 0.075:  # 7.5 cm threshold
+                if np.linalg.norm(candidate_pos[:2] - occ) < 0.1:  # 7.5 cm threshold
                     is_occupied = True
                     break
             if not is_occupied:
