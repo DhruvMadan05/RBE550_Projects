@@ -147,3 +147,40 @@ def create_scene_stacked() -> Tuple[Any, Any, Dict[str, Any], Any]:
     blocks_state: Dict[str, Any] = {"r": cubeR, "g": cubeG, "b": cubeB, "y": cubeY, "m": cubeM, "c": cubeC}
 
     return scene, franka, blocks_state
+
+def create_scene_3_blocks() -> Tuple[Any, Any, Dict[str, Any], Any]:
+    """Create a simpler demo scene with only 3 blocks."""
+    scene = _build_base_scene()
+
+    plane = scene.add_entity(gs.morphs.Plane())
+
+    posR = (0.65, 0.0, 0.02)
+    posO = (0.65, 0.2, 0.02)
+    posB = (0.65, 0.4, 0.02)
+
+    cubeR = scene.add_entity(
+        gs.morphs.Box(size=(0.04, 0.04, 0.04), pos= posR),
+        surface=gs.options.surfaces.Plastic(color=(1.0, 0.0, 0.0)),
+    )
+    # orange block color
+    cubeO = scene.add_entity(
+        gs.morphs.Box(size=(0.04, 0.04, 0.04), pos= posO),
+        surface=gs.options.surfaces.Plastic(color=(1.0, 0.5, 0.0)),
+    )
+    cubeB = scene.add_entity(
+        gs.morphs.Box(size=(0.04, 0.04, 0.04), pos= posB),
+        surface=gs.options.surfaces.Plastic(color=(0.0, 0.0, 1.0)),
+    )
+
+    franka_raw = scene.add_entity(gs.morphs.MJCF(file="xml/franka_emika_panda/panda.xml"))
+    franka = RobotAdapter(franka_raw, scene)
+
+    scene.build()
+
+    franka.set_qpos(np.array([0.0, -0.5, -0.2, -1.0, 0.0, 1.00, 0.5, 0.02, 0.02]))
+
+    _elevate_robot_base(franka)
+
+    blocks_state: Dict[str, Any] = {"r": cubeR, "o": cubeO, "b": cubeB}
+
+    return scene, franka, blocks_state

@@ -72,7 +72,7 @@ class MotionPrimitiveExecutor:
         hover = self._hover_pose(block)
         grasp = self._grasp_pose(block)
 
-        hand_quat = self._check_hand_orientation(grasp)
+        hand_quat = self._check_hand_orientation(grasp, ignore_blocks=(block_name,))
 
         self._move_hand(hover, quat=hand_quat)
         print("Moved to hover pose")
@@ -107,7 +107,7 @@ class MotionPrimitiveExecutor:
             target_pos[0] = target_xy[0]
             target_pos[1] = target_xy[1]
 
-        place = self._place_pose_on_table(target_pos)
+        place = self._place_pose_on_table(target_pos, use_predefined=(target_xy is None))
 
         hover = place + np.array([0.0, 0.0, self.config.hover_height])
         block_entity = self.blocks_state[block_name]
@@ -133,7 +133,7 @@ class MotionPrimitiveExecutor:
         hover = place + np.array([0.0, 0.0, self.config.hover_height_stacking])
         block_entity = self.blocks_state[top_block]
 
-        hand_quat = self._check_hand_orientation(place)
+        hand_quat = self._check_hand_orientation(place, ignore_blocks=(bottom_block,))
 
         # print bottom block position
         print(f"Bottom block '{bottom_block}' position: {support.get_pos()}")
@@ -155,21 +155,28 @@ class MotionPrimitiveExecutor:
         self.pick(top_block)
 
     # ------------------------------------------------------------------ helpers
-    def _check_hand_orientation(self, target_pos: np.ndarray) -> np.ndarray:
+    def _check_hand_orientation(
+        self,
+        target_pos: np.ndarray,
+        ignore_blocks: Optional[Iterable[str]] = None,
+    ) -> np.ndarray:
         """
         take the target place position and check if the gripper should be aligned with the x or y axis of the world
         If there is another block within 0.05m in the y direction either side of the target position, align the gripper with the x axis
         else align with the y axis (default)
         """
 
+        ignored = set(ignore_blocks or [])
+        if self.held_block:
+            ignored.add(self.held_block)
+
         for bname, bentity in self.blocks_state.items():
-            if bname == self.held_block:
+            if bname in ignored:
                 continue
             bpos = np.array(bentity.get_pos(), dtype=float)
-            # check if bpos is within 0.05m in y direction of target_pos
-            if (abs(bpos[1] - target_pos[1]) < 0.09 and
-                abs(bpos[0] - target_pos[0]) < 0.07 and
-                abs(bpos[2] - target_pos[2]) < 0.1):
+            # rely on XY proximity only; Z differs when target_pos is above the table
+            if (abs(bpos[1] - target_pos[1]) < 0.07 and
+                abs(bpos[0] - target_pos[0]) < 0.04):
                 print(f"Aligning gripper with x axis due to block {bname} at {bpos}")
                 return X_HAND_QUAT
 
@@ -238,9 +245,12 @@ class MotionPrimitiveExecutor:
         print(f"Grasp pose: {grasp}")
         return grasp
 
-    def _place_pose_on_table(self, target_pos: np.ndarray) -> np.ndarray:
+    def _place_pose_on_table(self, target_pos: np.ndarray, *, use_predefined: bool = True) -> np.ndarray:
         place = target_pos.copy()
         place[2] = self._block_height() + self.config.grasp_clearance
+
+        if not use_predefined:
+            return place
 
         # set 6 different locations in the area for placing the block. Check if any other block is already there
         # if so pick a different one of the locations to place the block

@@ -87,6 +87,29 @@ def goal_tall_tower(
     atoms.append("(handempty)")
     return _dedupe_preserve_order(atoms)
 
+def goal_3_blocks(
+        base_pair: Sequence[str] = ("b", "o"),
+        center_block: str = "r",
+) -> List[str]:
+    """Goal for the pyramid-like layout with two neighbors and a centered block."""
+
+    if len(base_pair) != 2:
+        raise ValueError("base_pair must contain exactly two block names")
+    left, right = base_pair
+    atoms: List[str] = [
+        f"(ontable {left})",
+        f"(ontable {right})",
+        f"(ontable {center_block})",
+        f"(clear {left})",
+        f"(clear {right})",
+        f"(clear {center_block})",
+        f"(nextTo {left} {right})",
+        f"(nextTo {right} {left})",
+        f"(nextToCenter {center_block} {left} {right})",
+        f"(nextToCenter {center_block} {right} {left})",
+        "(handempty)",
+    ]
+    return _dedupe_preserve_order(atoms)
 
 def _tower_goal_atoms(stack: Sequence[str]) -> List[str]:
     atoms: List[str] = []
@@ -137,4 +160,3 @@ def _dedupe_preserve_order(items: Sequence[str]) -> List[str]:
         seen.add(item)
         result.append(item)
     return result
-
