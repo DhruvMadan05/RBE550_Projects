@@ -119,9 +119,10 @@ class MotionPrimitiveExecutor:
         if self.held_block != top_block:
             raise MotionPrimitiveError(f"Robot must hold {top_block} before stacking.")
         support = self._require_block(bottom_block)
+        target_center = self._tower_cg(bottom_block)
         target = np.array(support.get_pos(), dtype=float)
-        target[2] += self._block_height()
-        place = self._place_pose_top(target)
+        target_center[2] += self._block_height()
+        place = self._place_pose_top(target_center)
         hover = place + np.array([0.0, 0.0, self.config.hover_height_stacking])
         block_entity = self.blocks_state[top_block]
 
@@ -145,6 +146,51 @@ class MotionPrimitiveExecutor:
         self.pick(top_block)
 
     # ------------------------------------------------------------------ helpers
+    def _tower_cg(self, bottom_block: str) -> np.ndarray:
+        """
+        Find the center of gravity of all blocks of the tower with the given bottom block. Take that center of gravity 
+        and find the next position to place the top block on to bring that center of gravity back to over the base center
+        
+        """
+        bottom_block_pos = np.array(self.blocks_state[bottom_block].get_pos(), dtype=float)
+
+        tower_blocks = [bottom_block]
+        # find all blocks on top of bottom_block
+        # Check if any block is within 0.05m in x y or z above the bottom block
+    
+        current_top = bottom_block
+        while True:
+            found_on_top = False
+            current_top_pos = np.array(self.blocks_state[current_top].get_pos(), dtype=float)
+            for bname, bentity in self.blocks_state.items():
+                if bname == current_top:
+                    continue
+                bpos = np.array(bentity.get_pos(), dtype=float)
+                # check if bpos is on top of current_top_pos
+                if (abs(bpos[0] - current_top_pos[0]) < 0.05 and
+                    abs(bpos[1] - current_top_pos[1]) < 0.05 and
+                    abs(bpos[2] - (current_top_pos[2] + self._block_height())) < 0.02):
+                    tower_blocks.append(bname)
+                    current_top = bname
+                    found_on_top = True
+                    break
+            if not found_on_top:
+                break
+        # compute center of gravity of the tower
+        cg = np.zeros(3, dtype=float)
+        for bname in tower_blocks:
+            bpos = np.array(self.blocks_state[bname].get_pos(), dtype=float)
+            cg += bpos
+        cg /= len(tower_blocks) # average position
+        print(f"Tower blocks: {tower_blocks}, Center of Gravity: {cg}")
+
+        # compare the cg xy with bottom block position xy and adjust target position accordingly
+        target_pos = bottom_block_pos.copy()
+        target_pos[0] += (bottom_block_pos[0] - cg[0])
+        target_pos[1] += (bottom_block_pos[1] - cg[1])
+
+        return target_pos
+
     def _hover_pose(self, block_entity) -> np.ndarray:
         pos = np.array(block_entity.get_pos(), dtype=float)
         hover = pos.copy()
