@@ -24,7 +24,8 @@ from genesis.utils.misc import tensor_to_array
 import matplotlib.pyplot as plt
 
 
-DEFAULT_HAND_QUAT = np.array([0.0, 1.0, 0.0, 0.0])
+DEFAULT_HAND_QUAT = np.array([0.0, 1.0, 0.0, 0.0]) # axis aligned with the y axis
+X_HAND_QUAT = np.array([0.0, 1.0, 1.0, 0.0]) # axis aligned with the x axis
 
 
 class MotionPrimitiveError(RuntimeError):
@@ -70,11 +71,14 @@ class MotionPrimitiveExecutor:
         print("Gripper Opened")
         hover = self._hover_pose(block)
         grasp = self._grasp_pose(block)
-        self._move_hand(hover)
+
+        hand_quat = self._check_hand_orientation(grasp)
+
+        self._move_hand(hover, quat=hand_quat)
         print("Moved to hover pose")
         # While the gripper is not at the grasp pose, wait for it until it reachs the desired position
         
-        self._move_hand(grasp)
+        self._move_hand(grasp, quat=hand_quat)
         print("Moved to grasp pose")
 
         
@@ -87,7 +91,7 @@ class MotionPrimitiveExecutor:
         hand_pos = np.asarray(self.hand_link.get_pos(), dtype=float)
         print(hand_pos)
         
-        self._move_hand(hover, attached_object=block)
+        self._move_hand(hover, attached_object=block, quat=hand_quat)
         print("Lifted block")
 
         # # print qpos history to file
@@ -108,12 +112,15 @@ class MotionPrimitiveExecutor:
         hover = place + np.array([0.0, 0.0, self.config.hover_height])
         block_entity = self.blocks_state[block_name]
 
-        self._move_hand(hover, attached_object=block_entity)
-        self._move_hand(place, attached_object=block_entity)
+        # check target positions for grasp and place orientation. 
+        hand_quat = self._check_hand_orientation(place)
+
+        self._move_hand(hover, attached_object=block_entity, quat=hand_quat)
+        self._move_hand(place, attached_object=block_entity, quat=hand_quat)
         self._open_gripper(attached_object=block_entity)
         self.gripper_closed = False
         self.held_block = None
-        self._move_hand(hover)
+        self._move_hand(hover, quat=hand_quat)
 
     def stack(self, top_block: str, bottom_block: str) -> None:
         if self.held_block != top_block:
@@ -126,26 +133,50 @@ class MotionPrimitiveExecutor:
         hover = place + np.array([0.0, 0.0, self.config.hover_height_stacking])
         block_entity = self.blocks_state[top_block]
 
+        hand_quat = self._check_hand_orientation(place)
+
         # print bottom block position
         print(f"Bottom block '{bottom_block}' position: {support.get_pos()}")
         # print target hover and place positions
         print(f"Hover position for stacking: {hover}")
         print(f"Place position for stacking: {place}")
 
-        self._move_hand(hover, attached_object=block_entity)
+        self._move_hand(hover, attached_object=block_entity, quat=hand_quat)
         
-        self._move_hand(place, attached_object=block_entity)
+        self._move_hand(place, attached_object=block_entity, quat=hand_quat)
         self._open_gripper(attached_object=block_entity)
         self.gripper_closed = False
         self.held_block = None
-        self._move_hand(hover)
-
+        self._move_hand(hover, quat=hand_quat)
+        
     def unstack(self, top_block: str, bottom_block: str) -> None:
         block = self._require_block(top_block)
         # same as pick but we expect ON relation already satisfied
         self.pick(top_block)
 
     # ------------------------------------------------------------------ helpers
+    def _check_hand_orientation(self, target_pos: np.ndarray) -> np.ndarray:
+        """
+        take the target place position and check if the gripper should be aligned with the x or y axis of the world
+        If there is another block within 0.05m in the y direction either side of the target position, align the gripper with the x axis
+        else align with the y axis (default)
+        """
+
+        for bname, bentity in self.blocks_state.items():
+            if bname == self.held_block:
+                continue
+            bpos = np.array(bentity.get_pos(), dtype=float)
+            # check if bpos is within 0.05m in y direction of target_pos
+            if (abs(bpos[1] - target_pos[1]) < 0.09 and
+                abs(bpos[0] - target_pos[0]) < 0.07 and
+                abs(bpos[2] - target_pos[2]) < 0.1):
+                print(f"Aligning gripper with x axis due to block {bname} at {bpos}")
+                return X_HAND_QUAT
+
+        print("Aligning gripper with y axis (default)")
+        return DEFAULT_HAND_QUAT
+
+
     def _tower_cg(self, bottom_block: str) -> np.ndarray:
         """
         Find the center of gravity of all blocks of the tower with the given bottom block. Take that center of gravity 
