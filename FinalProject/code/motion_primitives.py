@@ -168,7 +168,7 @@ class MotionPrimitiveExecutor:
         # set 6 different locations in the area for placing the block. Check if any other block is already there
         # if so pick a different one of the locations to place the block
         # predefined locations (x, y offsets)
-        offsets = [(0.65, 0.0), (0.65, 0.2), (0.65, 0.4), (0.45, 0.0), (0.45, 0.2), (0.45, 0.4)]
+        offsets = [(0.65, 0.0), (0.65, 0.2), (0.65, 0.4), (0.45, 0.0), (0.45, 0.2), (0.45, 0.4), (0.45, -0.2), (0.45, -0.4), (0.65, -0.2), (0.65, -0.4)]
         occupied_positions = []
         for bname, bentity in self.blocks_state.items():
             if bname != self.held_block:
@@ -187,7 +187,7 @@ class MotionPrimitiveExecutor:
             # check if candidate pos is occupied
             is_occupied = False
             for occ in occupied_positions:
-                if np.linalg.norm(candidate_pos[:2] - occ) < 0.1:  # 7.5 cm threshold
+                if np.linalg.norm(candidate_pos[:2] - occ) < 0.15:  # 7.5 cm threshold
                     is_occupied = True
                     break
             if not is_occupied:
