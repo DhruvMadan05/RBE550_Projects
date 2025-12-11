@@ -111,6 +111,45 @@ def goal_3_blocks(
     ]
     return _dedupe_preserve_order(atoms)
 
+def goal_pyramid_with_cap(
+        base_pair: Sequence[str] = ("r1", "r2"),
+        center_block: str = "r3",
+        cap_block: str = "y1",
+        base_pair2: Sequence[str] = ("g1", "g2"),
+        center_block2: str = "g3",
+        cap_block2: str = "y2",
+) -> List[str]:
+    """Goal atoms for the capped pyramid layout."""
+
+    if len(base_pair) != 2:
+        raise ValueError("base_pair must contain exactly two block names")
+    left, right = base_pair
+    left2, right2 = base_pair2
+    atoms: List[str] = [
+        f"(ontable {left})",
+        f"(ontable {right})",
+        f"(ontable {center_block})",
+        f"(nextTo {left} {right})",
+        f"(nextTo {right} {left})",
+        f"(nextToCenter {center_block} {left} {right})",
+        f"(nextToCenter {center_block} {right} {left})",
+        f"(on {cap_block} {center_block})",
+        f"(clear {cap_block})",
+        f"(topCenter {cap_block})",
+        f"(ontable {left2})",
+        f"(ontable {right2})",
+        f"(ontable {center_block2})",
+        f"(nextTo {left2} {right2})",
+        f"(nextTo {right2} {left2})",
+        f"(nextToCenter {center_block2} {left2} {right2})",
+        f"(nextToCenter {center_block2} {right2} {left2})",
+        f"(on {cap_block2} {center_block2})",
+        f"(clear {cap_block2})",
+        f"(topCenter {cap_block2})",
+        "(handempty)",
+    ]
+    return _dedupe_preserve_order(atoms)
+
 def _tower_goal_atoms(stack: Sequence[str]) -> List[str]:
     atoms: List[str] = []
     if not stack:
@@ -123,7 +162,7 @@ def _tower_goal_atoms(stack: Sequence[str]) -> List[str]:
 
 
 def _collect_objects(state: SymbolicState) -> List[str]:
-    names = set(state.ontable) | set(state.clear) | set(state.holding)
+    names = set(state.ontable) | set(state.clear) | set(state.holding) | set(state.top_center)
     for a, b in state.on:
         names.add(a)
         names.add(b)

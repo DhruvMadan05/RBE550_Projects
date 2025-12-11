@@ -16,8 +16,8 @@ else:
     gs.init(backend=gs.cpu, logging_level='Warning', logger_verbose_time=False)
 
 # build the scene using the factory
-#scene, franka, BlocksState = create_scene_6blocks()
-scene, franka, BlocksState = create_scene_stacked()
+scene, franka, BlocksState = create_scene_6blocks()
+#scene, franka, BlocksState = create_scene_stacked()
 
 # set control gains
 # Note: the following values are tuned for achieving best behavior with Franka
@@ -135,9 +135,9 @@ if not plan:
     
 print("\n")
 sym = lift_scene(franka, BlocksState)
-plan = plan_blocksworld(sym, goal_two_towers())
+#plan = plan_blocksworld(sym, goal_two_towers())
 #plan = plan_blocksworld(sym, goal_single_tower())
-#plan = plan_blocksworld(sym, goal_tall_tower())
+plan = plan_blocksworld(sym, goal_tall_tower())
 
 for action in plan:
     print(action)
@@ -156,16 +156,16 @@ while plan is not None and len(plan) > 0:
     if not success:
         print("Primitive failed, re-planning…")
         sym = lift_scene(franka, BlocksState)
-        plan = plan_blocksworld(sym, goal_two_towers())
+        #plan = plan_blocksworld(sym, goal_two_towers())
         #plan = plan_blocksworld(sym, goal_single_tower())
-        #plan = plan_blocksworld(sym, goal_tall_tower())
+        plan = plan_blocksworld(sym, goal_tall_tower())
 
     else:
         # action succeeded, move to next action
         sym = lift_scene(franka, BlocksState)
-        plan = plan_blocksworld(sym, goal_two_towers())
+        #plan = plan_blocksworld(sym, goal_two_towers())
         #plan = plan_blocksworld(sym, goal_single_tower())
-        #plan = plan_blocksworld(sym, goal_tall_tower())
+        plan = plan_blocksworld(sym, goal_tall_tower())
 
 import time
 while True:

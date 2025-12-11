@@ -148,6 +148,35 @@ class MotionPrimitiveExecutor:
         self.gripper_closed = False
         self.held_block = None
         self._move_hand(hover, quat=hand_quat)
+
+    def place_top_center(self, top_block: str, center_block: str, base_a: str, base_b: str) -> None:
+        """
+        Place the held block above the centroid defined by the base pair and center block.
+        """
+        if self.held_block != top_block:
+            raise MotionPrimitiveError(f"Robot must hold {top_block} before placing.")
+        center_entity = self._require_block(center_block)
+        base_a_entity = self._require_block(base_a)
+        base_b_entity = self._require_block(base_b)
+
+        pos_center = np.array(center_entity.get_pos(), dtype=float)
+        pos_a = np.array(base_a_entity.get_pos(), dtype=float)
+        pos_b = np.array(base_b_entity.get_pos(), dtype=float)
+
+        centroid_xy = (pos_center[:2] + pos_a[:2] + pos_b[:2]) / 3.0
+        target_center = np.array([centroid_xy[0], centroid_xy[1], pos_center[2] + self._block_height()])
+        place = self._place_pose_top(target_center)
+        hover = place + np.array([0.0, 0.0, self.config.hover_height_stacking])
+        block_entity = self.blocks_state[top_block]
+
+        hand_quat = self._check_hand_orientation(place, ignore_blocks=(center_block, base_a, base_b))
+
+        self._move_hand(hover, attached_object=block_entity, quat=hand_quat)
+        self._move_hand(place, attached_object=block_entity, quat=hand_quat)
+        self._open_gripper(attached_object=block_entity)
+        self.gripper_closed = False
+        self.held_block = None
+        self._move_hand(hover, quat=hand_quat)
         
     def unstack(self, top_block: str, bottom_block: str) -> None:
         block = self._require_block(top_block)

@@ -18,7 +18,7 @@ BLOCK_SIZE = 0.04
 TABLE_Z = 0.0
 
 # Tolerances (meters) for deciding symbolic relations from noisy poses.
-XY_ON_TOL = 0.02          # how close XY projections must be to count as stacked
+XY_ON_TOL = 0.05          # how close XY projections must be to count as stacked
 Z_ON_TOL = 0.01           # acceptable deviation from perfect block height
 TABLE_TOL = 0.008         # slack when checking if a block rests on the plane
 HOLDING_DIST_TOL = 0.15   # block-hand distance threshold to infer holding
@@ -49,6 +49,7 @@ class SymbolicState:
     clear: Set[str]  # predicates for block a has nothing on top
     next_to: Set[Tuple[str, str]]  # adjacency predicates at table level
     next_to_center: Set[Tuple[str, str, str]]  # centered-between predicates
+    top_center: Set[str]  # blocks stacked atop the center block
     holding: Set[str]  # predicates for block a is held by the robot
     handempty: bool  # predicate for the robot hand being empty
 
@@ -69,6 +70,8 @@ class SymbolicState:
             atoms.append(f"(nextTo {a} {b})")
         for a, b, c in sorted(self.next_to_center):
             atoms.append(f"(nextToCenter {a} {b} {c})")
+        for name in sorted(self.top_center):
+            atoms.append(f"(topCenter {name})")
         for name in sorted(self.holding):
             atoms.append(f"(holding {name})")
         if self.handempty:
@@ -96,9 +99,11 @@ def lift_scene(
     holding_block = _infer_holding(franka, blocks)
     on_relations = _compute_on_relations(blocks, block_size)
     ontable = _compute_ontable(blocks, block_size, table_z)
-    clear = _compute_clear(blocks, on_relations)
     next_to = _compute_next_to(blocks, ontable, block_size)
     next_to_center = _compute_next_to_center(blocks, ontable, next_to, block_size)
+    blocked_bases = _infer_blocked_bases(on_relations, next_to_center)
+    clear = _compute_clear(blocks, on_relations, extra_blocked=blocked_bases)
+    top_center = _compute_top_center(on_relations, next_to_center)
 
     holding: Set[str] = {holding_block} if holding_block else set()
     handempty = holding_block is None
@@ -110,6 +115,7 @@ def lift_scene(
         clear=clear,
         next_to=next_to,
         next_to_center=next_to_center,
+        top_center=top_center,
         holding=holding,
         handempty=handempty,
     )
@@ -184,6 +190,7 @@ def _compute_ontable(
 def _compute_clear(
     blocks: Sequence[BlockState],
     on_relations: Iterable[Tuple[str, str]],
+    extra_blocked: Optional[Iterable[str]] = None,
 ) -> Set[str]:
     """
     CLEAR(x) if no block is on x.
@@ -195,6 +202,8 @@ def _compute_clear(
         Set[str]: Set of block names that are clear.
     """
     blocked: Set[str] = {b for _, b in on_relations}
+    if extra_blocked:
+        blocked.update(extra_blocked)
     return {block.name for block in blocks if block.name not in blocked}
 
 
@@ -271,6 +280,38 @@ def _compute_next_to_center(
                 triples.add((center.name, a, b))
                 triples.add((center.name, b, a))
     return triples
+
+
+def _compute_top_center(
+    on_relations: Set[Tuple[str, str]],
+    next_to_center: Set[Tuple[str, str, str]],
+) -> Set[str]:
+    """Blocks currently placed atop a centered block."""
+
+    centers_with_base: Set[str] = {center for center, _, _ in next_to_center}
+    top_blocks: Set[str] = set()
+    for top, center in on_relations:
+        if center in centers_with_base:
+            top_blocks.add(top)
+    return top_blocks
+
+
+def _infer_blocked_bases(
+    on_relations: Set[Tuple[str, str]],
+    next_to_center: Set[Tuple[str, str, str]],
+) -> Set[str]:
+    """Infer which base blocks should be considered blocked by a centered cap."""
+
+    center_to_bases: Dict[str, Set[Tuple[str, str]]] = {}
+    for center, a, b in next_to_center:
+        pair = tuple(sorted((a, b)))
+        center_to_bases.setdefault(center, set()).add(pair)
+
+    blocked: Set[str] = set()
+    for top, center in on_relations:
+        for pair in center_to_bases.get(center, set()):
+            blocked.update(pair)
+    return blocked
 
 
 def _is_on(top_pos: np.ndarray, bottom_pos: np.ndarray, block_height: float) -> bool:

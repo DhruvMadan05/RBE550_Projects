@@ -8,6 +8,7 @@
     (handempty)
     (nextTo ?x ?y)
     (nextToCenter ?x ?y ?z)
+    (topCenter ?x)
   )
 
   (:action pick-up
@@ -22,6 +23,7 @@
       (not (ontable ?x))
       (not (clear ?x))
       (not (handempty))
+      (not (topCenter ?x))
     )
   )
 
@@ -35,6 +37,7 @@
       (clear ?x)
       (handempty)
       (not (holding ?x))
+      (not (topCenter ?x))
     )
   )
 
@@ -50,6 +53,7 @@
       (handempty)
       (not (holding ?x))
       (not (clear ?y))
+      (not (topCenter ?x))
     )
   )
 
@@ -66,6 +70,7 @@
       (not (on ?x ?y))
       (not (clear ?x))
       (not (handempty))
+      (not (topCenter ?x))
     )
   )
 
@@ -82,6 +87,7 @@
       (nextTo ?x ?y)
       (nextTo ?y ?x)
       (not (holding ?x))
+      (not (topCenter ?x))
     )
   )
 
@@ -100,6 +106,27 @@
       (nextToCenter ?x ?y ?z)
       (nextToCenter ?x ?z ?y)
       (not (holding ?x))
+      (not (topCenter ?x))
+    )
+  )
+
+  (:action place-top-center
+    :parameters (?x ?c ?a ?b)
+    :precondition (and
+      (holding ?x)
+      (clear ?c)
+      (nextToCenter ?c ?a ?b)
+    )
+    :effect (and
+      (on ?x ?c)
+      (clear ?x)
+      (handempty)
+      (topCenter ?x)
+      (not (holding ?x))
+      (not (ontable ?x))
+      (not (clear ?c))
+      (not (clear ?a))
+      (not (clear ?b))
     )
   )
 )

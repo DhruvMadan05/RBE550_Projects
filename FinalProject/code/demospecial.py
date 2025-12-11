@@ -2,12 +2,12 @@ from ast import parse
 import sys
 import numpy as np
 import genesis as gs
-from scenes import create_scene_3_blocks
+from scenes import create_scene_3_blocks, create_scene_8_blocks
 from symbolic import lift_scene, BLOCK_SIZE, NEXT_TO_CENTER_LATERAL
 
 from motion_primitives import MotionPrimitiveError, MotionPrimitiveExecutor
 
-from task_planner import plan_blocksworld, goal_3_blocks
+from task_planner import plan_blocksworld, goal_pyramid_with_cap
 
 PLACEMENT_BUFFER = 0.005
 
@@ -18,7 +18,7 @@ else:
     gs.init(backend=gs.cpu, logging_level='Warning', logger_verbose_time=False)
 
 # build the scene using the factory
-scene, franka, BlocksState = create_scene_3_blocks()
+scene, franka, BlocksState = create_scene_8_blocks()
 
 # set control gains
 # Note: the following values are tuned for achieving best behavior with Franka
@@ -58,7 +58,7 @@ predicates = lift_scene(franka, BlocksState)
 for atom in predicates.as_pddl_atoms():
     print(atom)
 
-goal = goal_3_blocks()
+goal = goal_pyramid_with_cap()
 actions = plan_blocksworld(predicates, goal)
 # print("Planned actions:")
 # for action in actions:
@@ -180,6 +180,13 @@ def execute_action(action, executor, sym):
             target_xy = _center_xy(BlocksState, args[1], args[2], args[0])
             target_xy[0] += 0.005  # slight offset to avoid collisions
             executor.putdown(args[0], target_xy=target_xy)
+            return True
+        except MotionPrimitiveError as exc:
+            print(exc)
+            return False
+    elif name == "place-top-center":
+        try:
+            executor.place_top_center(args[0], args[1], args[2], args[3])
             return True
         except MotionPrimitiveError as exc:
             print(exc)
