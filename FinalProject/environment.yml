@@ -1,0 +1,7 @@
+name: rbe550
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - opencv
+prefix: /opt/homebrew/Caskroom/miniconda/base/envs/rbe550
