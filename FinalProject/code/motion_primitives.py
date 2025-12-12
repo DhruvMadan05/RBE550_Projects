@@ -128,8 +128,8 @@ class MotionPrimitiveExecutor:
         support = self._require_block(bottom_block)
         target_center = self._tower_cg(bottom_block)
         target = np.array(support.get_pos(), dtype=float)
-        target_center[2] += self._block_height()
-        place = self._place_pose_top(target_center)
+        target[2] += self._block_height()
+        place = self._place_pose_top(target)
         hover = place + np.array([0.0, 0.0, self.config.hover_height_stacking])
         block_entity = self.blocks_state[top_block]
 
@@ -253,8 +253,8 @@ class MotionPrimitiveExecutor:
 
         # compare the cg xy with bottom block position xy and adjust target position accordingly
         target_pos = bottom_block_pos.copy()
-        target_pos[0] += (bottom_block_pos[0] - cg[0])
-        target_pos[1] += (bottom_block_pos[1] - cg[1])
+        target_pos[0] += (bottom_block_pos[0] - cg[0]) - 0.001
+        target_pos[1] += (bottom_block_pos[1] - cg[1]) + 0.001
 
         return target_pos
 
@@ -317,7 +317,7 @@ class MotionPrimitiveExecutor:
         place = target_pos.copy()
         place[2] += (self._block_height() / 2.0) + self.config.grasp_clearance
         place[0] += 0.005  # offset in x direction for better placing
-        place[1] += 0.002
+        place[1] += 0.0025
         return place
 
     def _move_hand(self, pos: np.ndarray, quat: Optional[np.ndarray] = None, attached_object=None) -> None:

@@ -149,7 +149,6 @@ def create_scene_stacked() -> Tuple[Any, Any, Dict[str, Any], Any]:
     return scene, franka, blocks_state
 
 def create_scene_8_blocks() -> Tuple[Any, Any, Dict[str, Any], Any]:
-    """Create a simpler demo scene with only 8 blocks."""
     scene = _build_base_scene()
 
     plane = scene.add_entity(gs.morphs.Plane())
